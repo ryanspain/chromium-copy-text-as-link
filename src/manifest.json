@@ -1,0 +1,25 @@
+{
+    "name": "Copy Text as Link",
+    "description": "Copy the selected text as a HTML link to the clipboard that can be pasted in in supported editors with the hyperlink intact.",
+    "version": "0.1",
+    "manifest_version": 3,
+    "icons": {
+        "16": "./images/icon-16x16.png",
+        "32": "./images/icon-32x32.png",
+        "48": "./images/icon-48x48.png",
+        "128": "./images/icon-128x128.png"
+    },
+    "background": {
+        "service_worker": "./background.js"
+    },
+    "permissions": [
+        "activeTab",
+        "tabs",
+        "scripting",
+        "contextMenus",
+        "clipboardWrite"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ]
+}
