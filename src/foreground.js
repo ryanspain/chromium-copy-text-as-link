@@ -1,64 +1,26 @@
 // handle message requests
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.message === 'copy_text_as_html_link') {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
-        var selectedText = request.selectedText;
-        var url = request.url;
+    console.debug(`${message.command} message received`, message);
 
-        console.debug(
-            "copy_text_as_link message received",
-            {
-                url: url,
-                selectedText: selectedText
-            }
-        );
-
-        copySelectedTextAsLink(selectedText, url);
-
-        sendResponse({ status: true });
+    switch (message.command) {
+        case 'copy_text_as_plain_html_link':
+            copySelectedTextAsPlainHtmlLink(message.selectedText, message.url)
+            break;
+        case 'copy_text_as_markdown_link':
+            throw new Error(`${message.command} not implemented yet`);
+        default:
+            throw new Error("Unsupported message");
     }
 });
 
-function copySelectedTextAsLink(selectedText, url) {
+function copySelectedTextAsPlainHtmlLink(selectedText, url) {
 
-    // Create container for the HTML
-    var container = document.createElement('a');
-    container.innerText = selectedText;
-    container.href = url;
-    container.target = "_blank";
+    var link = `<a href="${url}" target="_blank">${selectedText}</a>`;
 
-    // Style element
-    container.style.cursor = 'pointer';
-    container.style.fontFamily = "inherit";
-    container.style.fontSize = "inherit";
+    var type = "text/html";
+    var blob = new Blob([link], { type });
+    var data = [new ClipboardItem({ [type]: blob })];
 
-    // Detect all style sheets of the page
-    var activeSheets = Array.prototype.slice.call(document.styleSheets)
-        .filter(function (sheet) {
-            return !sheet.disabled
-        })
-
-    // Mount the container to the DOM to make `contentWindow` available
-    document.body.appendChild(container)
-
-    // Copy to clipboard
-    window.getSelection().removeAllRanges()
-
-    var range = document.createRange()
-    range.selectNode(container)
-    window.getSelection().addRange(range)
-
-    document.execCommand('copy')
-
-    console.log(container.innerHTML);
-    console.log(range);
-
-    for (var i = 0; i < activeSheets.length; i++) activeSheets[i].disabled = true
-
-    document.execCommand('copy')
-
-    for (var i = 0; i < activeSheets.length; i++) activeSheets[i].disabled = false
-
-    // Remove the container
-    document.body.removeChild(container)
+    navigator.clipboard.write(data);
 }
