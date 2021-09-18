@@ -1,7 +1,7 @@
 {
     "name": "Copy Text as Link",
     "description": "Copy the selected text as a HTML link to the clipboard that can be pasted in in supported editors with the hyperlink intact.",
-    "version": "0.1",
+    "version": "0.2",
     "manifest_version": 3,
     "icons": {
         "16": "./images/icon-16x16.png",
