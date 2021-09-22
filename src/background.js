@@ -31,7 +31,7 @@ function onCommandClicked(info, tab) {
 
     var message = {
         command: "copy_text_as_plain_html_link",
-        selectedText: info.selectedText,
+        selectedText: info.selectionText,
         url: tab.url
     };
 
