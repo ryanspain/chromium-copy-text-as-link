@@ -1,7 +1,7 @@
 {
     "name": "Copy Text as Link",
     "description": "Copy the selected text as a HTML link to the clipboard that can be pasted in in supported editors with the hyperlink intact.",
-    "version": "0.2",
+    "version": "0.3",
     "manifest_version": 3,
     "icons": {
         "16": "./images/icon-16x16.png",
@@ -13,11 +13,9 @@
         "service_worker": "./background.js"
     },
     "permissions": [
-        "activeTab",
         "tabs",
         "scripting",
-        "contextMenus",
-        "clipboardWrite"
+        "contextMenus"
     ],
     "host_permissions": [
         "<all_urls>"

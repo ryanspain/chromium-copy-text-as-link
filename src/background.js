@@ -29,22 +29,13 @@ chrome.contextMenus.onClicked.addListener(onCommandClicked);
 // handle context menu option clicks
 function onCommandClicked(info, tab) {
 
-    var selectedText = info.selectionText;
-    var url = tab.url;
+    var message = {
+        command: "copy_text_as_plain_html_link",
+        selectedText: info.selectedText,
+        url: tab.url
+    };
 
-    // send a message to the active tab
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    // tell the active tab to execute the copy text as link command
+    chrome.tabs.sendMessage(tab.id, message);
 
-        var activeTabId = tabs[0].id;
-        var message = {
-            command: "copy_text_as_plain_html_link",
-            selectedText: selectedText,
-            url: url
-        };
-
-        // tell the active tab to execute the copy text as link command
-        chrome.tabs.sendMessage(activeTabId, message);
-
-    });
-    
 }
