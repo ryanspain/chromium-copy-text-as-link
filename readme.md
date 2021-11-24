@@ -12,7 +12,7 @@ The link copied to the clipboard can be pasted into supported rich text editors.
 
 > The best way to install the extension is via the Chrome Web Store [here](https://chrome.google.com/webstore/detail/copy-text-as-link/jdhbnbfdhfndpjafikjmbdabogdecenp/related).
 
-Installation of the extension can be achieved using source control and works with both Google Chrome and the latest version of Microsoft Edge.
+Installation of the extension using source works with both Google Chrome and the latest version of Microsoft Edge.
 
 - Navigate to `chrome://extensions`.
 - Enable **Developer mode** (Top right of header).
