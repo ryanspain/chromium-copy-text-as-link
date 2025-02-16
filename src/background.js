@@ -6,7 +6,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         // load the foreground script
         chrome.scripting.executeScript({
             target: { tabId: tabId },
-            files: ["./foreground.js"]
+            files: ["./foreground.js", "./fragment-generation-utils.js"]
         });
 
     }
@@ -16,22 +16,18 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 chrome.contextMenus.removeAll(function () {
 
     chrome.contextMenus.create({
-        "id": "copy-text-as-html-link",
-        "title": "Copy text as link",
+        "id": "copy_text_as_page_link",
+        "title": "Copy text as page link",
         "contexts": ["selection"],
     });
 
 });
 
 // register an on click command for the context menu options
-chrome.contextMenus.onClicked.addListener(onCommandClicked);
-
-// handle context menu option clicks
-function onCommandClicked(info, tab) {
+chrome.contextMenus.onClicked.addListener(function (_, tab) {
 
     var message = {
-        command: "copy_text_as_plain_html_link",
-        selectedText: info.selectionText,
+        command: "copy_text_as_page_link",
         url: tab.url
     };
 

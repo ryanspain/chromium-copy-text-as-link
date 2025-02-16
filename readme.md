@@ -6,7 +6,7 @@ The link copied to the clipboard can be pasted into supported rich text editors.
 
 [Download Copy Text as Link from the Chrome Web Store](https://chrome.google.com/webstore/detail/copy-text-as-link/jdhbnbfdhfndpjafikjmbdabogdecenp).
 
-![Demo](./res/demo.gif)
+![Demo](./assets/demo.gif)
 
 ## Install via Chrome Web Store
 
