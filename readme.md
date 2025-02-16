@@ -49,15 +49,6 @@ Both copy methods can be accessed via default keyboard shortcuts which can be mo
    | Copy text as page link     | `Ctrl` + `Shift` + `L` |
    | Copy text as fragment link | `Ctrl` + `Shift` + `F` |
 
-### Setting your favorite copy method
-
-The default copy method available in the right-click context menu is **Copy text as page link**. You can change this in the extensions settings.
-
-1. TODO: Go to the extension settings
-2. TODO:
-3. TODO:
-4. TODO:
-
 ## Supported browsers
 
 | Browser | Version |
