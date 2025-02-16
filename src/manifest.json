@@ -19,5 +19,19 @@
     ],
     "host_permissions": [
         "<all_urls>"
-    ]
+    ],
+    "commands": {
+        "copy_text_as_page_link": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+L"
+            },
+            "description": "Copy text as a page link"
+        },
+        "copy_text_as_fragment_link": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+F"
+            },
+            "description": "Copy text as a fragment link"
+        }
+    }
 }

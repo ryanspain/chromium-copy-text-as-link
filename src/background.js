@@ -34,4 +34,17 @@ chrome.contextMenus.onClicked.addListener(function (_, tab) {
     // tell the active tab to execute the copy text as link command
     chrome.tabs.sendMessage(tab.id, message);
 
-}
+});
+
+// register an on command listener for the keyboard shortcuts
+chrome.commands.onCommand.addListener(function (command, tab) {
+
+    var message = {
+        command: command,
+        url: tab.url
+    };
+
+    // tell the active tab to execute the command
+    chrome.tabs.sendMessage(tab.id, message);
+
+});
