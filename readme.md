@@ -1,23 +1,62 @@
 # Copy Text as Link
 
-This is a Chromium browser extension that builds a link using the highlighted text on a web page and the active tabs URL.
-
-The link copied to the clipboard can be pasted into supported rich text editors.
-
-[Download Copy Text as Link from the Chrome Web Store](https://chrome.google.com/webstore/detail/copy-text-as-link/jdhbnbfdhfndpjafikjmbdabogdecenp).
+This is a [Chromium-based browser](#supported-browsers) extension that copies a rich-text link to your clipboard using the selected text on a web page.
 
 ![Demo](./assets/demo.gif)
 
-## Install via Chrome Web Store
+The link can be pasted into any rich-text editor. e.g. Outlook, Notion, Word. No need to copy the URL and text separately!
 
-The best way to install the extension is via the Chrome Web Store [here](https://chrome.google.com/webstore/detail/copy-text-as-link/jdhbnbfdhfndpjafikjmbdabogdecenp).
+<div style="display: flex; align-items: center; justify-content: center; margin: 20px 0px">
+     <a href="https://chrome.google.com/webstore/detail/copy-text-as-link/jdhbnbfdhfndpjafikjmbdabogdecenp">
+        <img src="./assets/install.png" alt="Install via the Chrome Web Store" style="margin-right: 10px;">
+    </a>
+     <a href="https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked">
+     or install from source code
+     </a>
+</div>
 
-## Install via source code
+## Usage
 
-Installation of the extension using source code works with both Google Chrome and the latest version of Microsoft Edge.
+### Copy text as page link
 
-- Clone this repo to your local machine.
-- Navigate to `chrome://extensions`.
-- Enable **Developer mode** (Top right of header).
-- Click **Load unpacked**.
-- Select and load the `src` folder.
+Copies a rich-text link to the current web page.
+
+1. Highlight some text on a web page.
+2. Right-click, and select **Copy text as page link**.
+3. Paste the copied text into any [rich-text editor](https://richtexteditor.com/demos/default.aspx).
+4. Clicking the link will bring you back to the web page.
+
+### Copy text as fragment link <sup>New</sup>
+
+Copies a rich-text link to the current text fragment on the web page.
+
+1. Highlight some text on a web page.
+2. Right-click, and select **Copy text as fragment link**.
+3. Paste the copied text into any [rich-text editor](https://richtexteditor.com/demos/default.aspx).
+4. Clicking the link will bring you back to highlighted text fragment on the web page.
+
+### Setting up shortcuts
+
+Both copy methods can be accessed via default keyboard shortcuts which can be modified.
+
+1. Go to your browser extension shortcuts page. e.g.
+   - Chrome: [chrome://extensions/shortcuts](chrome://extensions/shortcuts)
+   - Edge: [edge://extensions/shortcuts](edge://extensions/shortcuts)
+2. Edit the default shortcuts for the **Copy Text as Link** extension.
+
+   | Method                     | Default shortcut       |
+   | -------------------------- | ---------------------- |
+   | Copy text as page link     | `Ctrl` + `Shift` + `L` |
+   | Copy text as fragment link | `Ctrl` + `Shift` + `F` |
+
+## Supported browsers
+
+| Browser | Version |
+| ------- | ------- |
+| Chrome  | TODO    |
+| Edge    | TODO    |
+| Brave   | TODO    |
+
+## Reference
+
+- [Chrome Context Menu API](https://developer.chrome.com/docs/extensions/reference/api/contextMenus)
