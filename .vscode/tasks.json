@@ -1,0 +1,26 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "command": "npx playwright test",
+      "label": "Run all tests",
+      "problemMatcher": [],
+      "group": {
+        "kind": "test"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "npx playwright show-report ./test/report",
+      "label": "Open test report",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "command": "npx playwright test --ui",
+      "label": "Launch UI mode",
+      "problemMatcher": []
+    }
+  ]
+}
