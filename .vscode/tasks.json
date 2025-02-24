@@ -21,6 +21,38 @@
       "command": "npx playwright test --ui",
       "label": "Launch UI mode",
       "problemMatcher": []
+    },
+    {
+      "label": "Launch in Google Chrome",
+      "type": "shell",
+      "command": "chrome", // This assume Google Chrome is in your system path
+      "args": [
+        // Ensures a clean, isolated user profile, preventing interference from existing Chrome settings.
+        "--user-data-dir=${workspaceFolder}/.chrome-profile",
+
+        // Prevents Chrome from prompting to set itself as the default browser.
+        "--no-default-browser-check",
+
+        // Disables the first-run setup screen that appears when Chrome is launched with a new profile.
+        "--disable-first-run-ui",
+
+        // Prevents Chrome from asking the user to select a default search engine.
+        "--disable-search-engine-choice-screen",
+
+        // Disables all installed extensions except those explicitly loaded via --load-extension.
+        "--disable-extensions-except=${workspaceFolder}/src",
+
+        // Loads the specified extension when Chrome is launched.
+        "--load-extension=${workspaceFolder}/src",
+
+        // Forces Chrome to open in a new window rather than a new tab in an existing instance.
+        "--new-window",
+
+        // Opens Chrome with the specified URL on launch.
+        "https://google.com"
+      ]
+      ,
+      "problemMatcher": []
     }
   ]
 }
