@@ -33,6 +33,9 @@
         // Prevents Chrome from prompting to set itself as the default browser.
         "--no-default-browser-check",
 
+        // Disables prompt to sign in to Chrome.
+        "--disable-sync",
+
         // Disables the first-run setup screen that appears when Chrome is launched with a new profile.
         "--disable-first-run-ui",
 
