@@ -3,11 +3,15 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
     if (changeInfo.status === 'complete' && /^http/.test(tab.url)) {
 
+        console.debug(`'Injecting foreground script(s) into tab ${tabId}'`);
+
         // load the foreground script
         chrome.scripting.executeScript({
             target: { tabId: tabId },
             files: ["./foreground.js", "./fragment-generation-utils.js"]
         });
+
+        console.debug(`'Foreground script(s) injected into tab ${tabId}'`);
 
     }
 });
@@ -15,11 +19,15 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 // refresh context menu items
 chrome.contextMenus.removeAll(function () {
 
+    console.debug('Refreshing context menu items');
+
     chrome.contextMenus.create({
         "id": "copy_text_as_page_link",
         "title": "Copy text as page link",
         "contexts": ["selection"],
     });
+
+    console.debug('Context menu items refreshed');
 
 });
 
