@@ -66,7 +66,8 @@ function copySelectedTextAsFragmentLink() {
     navigator.clipboard.write(data);
 }
 
-const reportFailure = (status) => {
+function reportFailure(status) {
+
     const statusCodeMessages = {
         1: 'The selected text is too short or does not contain enough valid words. Please choose a longer or more specific phrase.',
         2: 'The selected text appears multiple times on this page and no unique link could be created. Try selecting a different text segment.',
@@ -76,10 +77,11 @@ const reportFailure = (status) => {
 
     window.queueMicrotask(() => {
         alert(
-            `Failed to copy the selected text as a unique link, please select a longer sequence of words.
-        \n\n
-        (${statusCodeMessages[status]})`
+            `Failed to copy the selected text as a unique link.
+            \n\n
+            (${statusCodeMessages[status]})`
         );
     });
+
     return true;
 };
