@@ -53,6 +53,9 @@
         // Prevents Chrome from asking the user to select a default search engine.
         "--disable-search-engine-choice-screen",
 
+        // Disables "Enhanced ad privacy in Chrome" dialog (if it wasn't disabled through other means).
+        "--disable-features=PrivacySandboxSettings4",
+
         // Disables all installed extensions except those explicitly loaded via --load-extension.
         "--disable-extensions-except=${workspaceFolder}/src",
 
