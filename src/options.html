@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extension Options</title>
+    <style>
+        :root {
+            --bg-color: #f5f5f5;
+            --card-bg: white;
+            --text-color: #333;
+            --text-secondary: #666;
+            --border-hover: #e0e0e0;
+            --card-shadow: rgba(0, 0, 0, 0.1);
+            --card-shadow-hover: rgba(0, 0, 0, 0.2);
+            --selected-border: #2196f3;
+            --selected-shadow: rgba(33, 150, 243, 0.3);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #1a1a1a;
+                --card-bg: #2d2d2d;
+                --text-color: #e0e0e0;
+                --text-secondary: #b0b0b0;
+                --border-hover: #404040;
+                --card-shadow: rgba(0, 0, 0, 0.3);
+                --card-shadow-hover: rgba(0, 0, 0, 0.4);
+                --selected-border: #2196f3;
+                --selected-shadow: rgba(33, 150, 243, 0.2);
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            display: flex;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .card {
+            width: 300px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            border: 2px solid transparent;
+            box-shadow: 0 4px 6px var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 0 15px var(--card-shadow-hover);
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        .card.selected {
+            border-color: var(--selected-border);
+            box-shadow: 0 0 15px var(--selected-shadow);
+        }
+
+        .card h2 {
+            margin: 0 0 1rem 0;
+            color: var(--text-color);
+            font-size: 1.5rem;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 160px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card p {
+            margin: 0;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .preview-notice {
+            position: fixed;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff3cd;
+            color: #856404;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.25rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-notice">
+        Preview Mode: Chrome Extension APIs not available
+    </div>
+
+    <div class="container">
+        <div class="card" data-mode="page">
+            <h2>Copy text as page link</h2>
+            <div class="card-image">
+                <img src="https://placehold.co/600x400/EEE/31343C" alt="Page link illustration">
+            </div>
+            <p>Create a link that points directly to the current page, perfect for sharing entire articles or documents.</p>
+        </div>
+        <div class="card" data-mode="fragment">
+            <h2>Copy text as fragment link</h2>
+            <div class="card-image">
+                <img src="https://placehold.co/600x400/EEE/31343C" alt="Fragment link illustration">
+            </div>
+            <p>Generate a link that highlights specific text on the page, ideal for referencing specific passages or quotes.</p>
+        </div>
+    </div>
+
+    <script>
+        // Check if we're running in a Chrome extension context
+        const isExtension = typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync;
+
+        if (!isExtension) {
+            document.querySelector('.preview-notice').style.display = 'block';
+        }
+
+        function loadPreference() {
+            if (!isExtension) return;
+
+            chrome.storage.sync.get(['copy_text_as_link_mode'], function(result) {
+                if (result.copy_text_as_link_mode) {
+                    const card = document.querySelector(`[data-mode="${result.copy_text_as_link_mode}"]`);
+                    if (card) card.classList.add('selected');
+                }
+            });
+        }
+
+        function savePreference(mode) {
+            if (!isExtension) return;
+
+            chrome.storage.sync.set({ copy_text_as_link_mode: mode }, function() {
+                console.log('Mode saved:', mode);
+            });
+        }
+
+        // Handle card selection
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove selection from all cards
+                document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+
+                // Add selection to clicked card
+                this.classList.add('selected');
+
+                // Save preference
+                const mode = this.dataset.mode;
+                savePreference(mode);
+            });
+        });
+
+        // Load initial preference
+        loadPreference();
+    </script>
+</body>
+</html>

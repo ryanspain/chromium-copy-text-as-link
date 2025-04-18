@@ -3,6 +3,7 @@
     "description": "Copy the selected text as a HTML link to the clipboard that can be pasted in in supported editors with the hyperlink intact.",
     "version": "0.3",
     "manifest_version": 3,
+    "options_page": "options.html",
     "icons": {
         "16": "./images/icon-16x16.png",
         "32": "./images/icon-32x32.png",
@@ -15,7 +16,8 @@
     "permissions": [
         "tabs",
         "scripting",
-        "contextMenus"
+        "contextMenus",
+        "storage"
     ],
     "host_permissions": [
         "<all_urls>"
