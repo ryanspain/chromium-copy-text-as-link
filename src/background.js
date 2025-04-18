@@ -3,7 +3,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
     if (changeInfo.status === 'complete' && /^http/.test(tab.url)) {
 
-        console.debug(`'Injecting foreground script(s) into tab ${tabId}'`);
+        console.debug(`Injecting foreground script(s) into tab ${tabId}`);
 
         // load the foreground script
         chrome.scripting.executeScript({
@@ -11,7 +11,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             files: ["./foreground.js", "./fragment-generation-utils.js"]
         });
 
-        console.debug(`'Foreground script(s) injected into tab ${tabId}'`);
+        console.debug(`Foreground script(s) injected into tab ${tabId}`);
 
     }
 });
@@ -33,6 +33,8 @@ chrome.contextMenus.removeAll(function () {
 
 // register an on click command for the context menu options
 chrome.contextMenus.onClicked.addListener(function (_, tab) {
+
+    console.debug('Context menu item clicked');
 
     var message = {
         command: "copy_text_as_page_link",
