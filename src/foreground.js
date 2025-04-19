@@ -1,9 +1,10 @@
-const exports = {};
+let exports;
+exports = exports || {};
 
-// handle message requests
+// handle message requests (from keyboard shortcuts or context menu)
 chrome.runtime.onMessage.addListener((message) => {
 
-    console.debug(`${message.command} message received`, message);
+    console.debug('Command received', message);
 
     switch (message.command) {
         case 'copy_text_as_page_link':
@@ -27,6 +28,8 @@ function copySelectedTextAsPageLink() {
     var type = "text/html";
     var blob = new Blob([link], { type });
     var data = [new ClipboardItem({ [type]: blob })];
+
+    console.debug('Copying link to clipboard', { selection: selection.toString(), url: url });
 
     navigator.clipboard.write(data);
 }
@@ -62,6 +65,8 @@ function copySelectedTextAsFragmentLink() {
     var type = "text/html";
     var blob = new Blob([link], { type });
     var data = [new ClipboardItem({ [type]: blob })];
+
+    console.debug('Copying link to clipboard', { selection: selection.toString(), url: url });
 
     navigator.clipboard.write(data);
 }

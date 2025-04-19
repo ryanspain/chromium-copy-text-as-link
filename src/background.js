@@ -1,9 +1,27 @@
+// when the extension is installed or updated, set default values
+chrome.runtime.onInstalled.addListener(function() {
+
+    chrome.storage.sync.get(['preferred_command'], function(settings) {
+
+        const default_command = 'copy_text_as_page_link';
+
+        console.debug(`Current preferred copy command: ${settings.preferred_command}`);
+
+        // if the preferred command is not set, set it to the default command (first install)
+        if (settings.preferred_command === undefined) {
+            chrome.storage.sync.set({ preferred_command: default_command }, function() {
+                console.debug(`Preferred copy command defaulted to ${default_command}`);
+            });
+        }
+    });
+});
+
 // inject the foreground script into the tab
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
     if (changeInfo.status === 'complete' && /^http/.test(tab.url)) {
 
-        console.debug(`Injecting foreground script(s) into tab ${tabId}`);
+        console.debug(`Injecting foreground script(s) into tab with ID: ${tabId}`);
 
         // load the foreground script
         chrome.scripting.executeScript({
@@ -11,8 +29,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             files: ["./foreground.js", "./fragment-generation-utils.js"]
         });
 
-        console.debug(`Foreground script(s) injected into tab ${tabId}`);
-
+        console.debug(`Foreground script(s) injected into tab with ID: ${tabId}`);
     }
 });
 
@@ -22,39 +39,43 @@ chrome.contextMenus.removeAll(function () {
     console.debug('Refreshing context menu items');
 
     chrome.contextMenus.create({
-        "id": "copy_text_as_page_link",
-        "title": "Copy text as page link",
+        "id": "copy_text_as_link",
+        "title": "Copy text as link",
         "contexts": ["selection"],
     });
 
     console.debug('Context menu items refreshed');
-
 });
 
+// scenario 1: the user uses the context menu
 // register an on click command for the context menu options
 chrome.contextMenus.onClicked.addListener(function (_, tab) {
 
     console.debug('Context menu item clicked');
 
-    var message = {
-        command: "copy_text_as_page_link",
-        url: tab.url
-    };
+    chrome.storage.sync.get(['preferred_command'], function(settings) {
 
-    // tell the active tab to execute the copy text as link command
-    chrome.tabs.sendMessage(tab.id, message);
+        let command = settings.preferred_command || 'copy_text_as_page_link';
 
+        var message = { command: command, format: 'html' };
+
+        console.debug(`Sending message to tab with ID: ${tab.id}`, message);
+
+        // tell the active tab to execute the command
+        chrome.tabs.sendMessage(tab.id, message);
+    });
 });
 
+// scenario 2: the user uses the keyboard shortcut
 // register an on command listener for the keyboard shortcuts
 chrome.commands.onCommand.addListener(function (command, tab) {
 
-    var message = {
-        command: command,
-        url: tab.url
-    };
+    console.debug('Keyboard shortcut command received', command);
+
+    var message = { command: command, format: 'html' };
+
+    console.debug(`Sending message to tab with ID: ${tab.id}`, message);
 
     // tell the active tab to execute the command
     chrome.tabs.sendMessage(tab.id, message);
-
 });

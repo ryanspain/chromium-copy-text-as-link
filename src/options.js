@@ -8,19 +8,19 @@ if (!isExtension) {
 function loadPreference() {
     if (!isExtension) return;
 
-    chrome.storage.sync.get(['copy_text_as_link_mode'], function(result) {
-        if (result.copy_text_as_link_mode) {
-            const card = document.querySelector(`[data-mode="${result.copy_text_as_link_mode}"]`);
+    chrome.storage.sync.get(['preferred_command'], function(settings) {
+        if (settings.preferred_command) {
+            const card = document.querySelector(`[data-command="${settings.preferred_command}"]`);
             if (card) card.classList.add('selected');
         }
     });
 }
 
-function savePreference(mode) {
+function savePreference(command) {
     if (!isExtension) return;
 
-    chrome.storage.sync.set({ copy_text_as_link_mode: mode }, function() {
-        console.log('Mode saved:', mode);
+    chrome.storage.sync.set({ preferred_command: command }, function() {
+        console.log('Preferred command saved:', command);
     });
 }
 
@@ -34,8 +34,8 @@ document.querySelectorAll('.card').forEach(card => {
         this.classList.add('selected');
 
         // Save preference
-        const mode = this.dataset.mode;
-        savePreference(mode);
+        const command = this.dataset.command;
+        savePreference(command);
     });
 });
 
