@@ -3,6 +3,12 @@
   "tasks": [
     {
       "type": "shell",
+      "command": "npm install && npx playwright install --with-deps",
+      "label": "Setup Playwright",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
       "command": "npx playwright test",
       "label": "Run all tests",
       "problemMatcher": [],
