@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,11 +11,16 @@
             --card-bg: white;
             --text-color: #333;
             --text-secondary: #666;
+            --text-light: #888;
             --border-hover: #e0e0e0;
             --card-shadow: rgba(0, 0, 0, 0.1);
             --card-shadow-hover: rgba(0, 0, 0, 0.2);
             --selected-border: #2196f3;
             --selected-shadow: rgba(33, 150, 243, 0.3);
+            --radio-border: #d0d0d0;
+            --radio-selected: #2196f3;
+            --tip-bg: rgba(33, 150, 243, 0.1);
+            --tip-bg-hover: rgba(19, 80, 129, 0.1);
         }
 
         @media (prefers-color-scheme: dark) {
@@ -23,11 +29,16 @@
                 --card-bg: #2d2d2d;
                 --text-color: #e0e0e0;
                 --text-secondary: #b0b0b0;
+                --text-light: #909090;
                 --border-hover: #404040;
                 --card-shadow: rgba(0, 0, 0, 0.3);
                 --card-shadow-hover: rgba(0, 0, 0, 0.4);
                 --selected-border: #2196f3;
                 --selected-shadow: rgba(33, 150, 243, 0.2);
+                --radio-border: #555;
+                --radio-selected: #2196f3;
+                --tip-bg: rgba(33, 150, 243, 0.15);
+                --tip-bg-hover: rgba(33, 150, 243, 0.5);
             }
         }
 
@@ -36,21 +47,45 @@
             margin: 0;
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             background-color: var(--bg-color);
             color: var(--text-color);
             transition: background-color 0.3s ease, color 0.3s ease;
+            padding: 2rem 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            max-width: 700px;
+        }
+
+        .header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .header p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.5;
         }
 
         .container {
             display: flex;
             gap: 2rem;
-            padding: 2rem;
+            padding: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 900px;
         }
 
         .card {
-            width: 300px;
+            width: 380px;
             background: var(--card-bg);
             border-radius: 12px;
             padding: 1.5rem;
@@ -58,6 +93,7 @@
             border: 2px solid transparent;
             box-shadow: 0 4px 6px var(--card-shadow);
             transition: all 0.3s ease;
+            position: relative;
         }
 
         .card:hover {
@@ -71,10 +107,48 @@
             box-shadow: 0 0 15px var(--selected-shadow);
         }
 
+        .radio-container {
+            position: absolute;
+            top: 0.8rem;
+            right: 0.8em;
+        }
+
+        .radio {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--radio-border);
+            display: inline-block;
+            position: relative;
+            transition: border-color 0.3s ease;
+        }
+
+        .radio::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--radio-selected);
+            transition: transform 0.2s ease;
+        }
+
+        .card.selected .radio {
+            border-color: var(--radio-selected);
+        }
+
+        .card.selected .radio::after {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
         .card h2 {
             margin: 0 0 1rem 0;
             color: var(--text-color);
             font-size: 1.5rem;
+            padding-right: 30px;
         }
 
         .card-image {
@@ -97,6 +171,38 @@
             line-height: 1.5;
         }
 
+        .shortcut-tip {
+            width: 400px;
+            margin-top: 1rem;
+            padding: 1rem 1rem 1.5rem 1rem;
+            background-color: var(--tip-bg);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: background-color 0.3s ease;
+        }
+
+        .shortcut-tip h4 {
+            margin: 0;
+        }
+
+        .shortcut-tip p {
+            margin-bottom: 1.3rem;
+        }
+
+        .shortcut-tip a {
+            color: var(--text-color);
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+            background-color: var(--tip-bg);
+            border-radius: 8px;;
+            padding: 0.4rem 0.6rem;
+        }
+
+        .shortcut-tip a:hover {
+            background-color: var(--tip-bg-hover);
+        }
+
         .preview-notice {
             position: fixed;
             top: 1rem;
@@ -110,28 +216,54 @@
         }
     </style>
 </head>
+
 <body>
     <div class="preview-notice">
         Preview Mode: Chrome Extension APIs not available
     </div>
 
+    <div class="header">
+        <h1>Choose your preferred copy mode</h1>
+        <p>This changes what copy mode is used when you highlight text and use the right-click context menu option from
+            a web page.</p>
+    </div>
+
     <div class="container">
         <div class="card" data-command="copy_text_as_page_link">
+            <div class="radio-container">
+                <span class="radio"></span>
+            </div>
             <h2>Copy text as page link</h2>
             <div class="card-image">
                 <img src="https://placehold.co/600x400/EEE/31343C" alt="Page link illustration">
             </div>
-            <p>Create a link that points directly to the current page, perfect for sharing entire articles or documents.</p>
+            <p>Create a link that points directly to the current page, perfect for sharing entire articles or documents.
+            </p>
         </div>
         <div class="card" data-command="copy_text_as_fragment_link">
+            <div class="radio-container">
+                <span class="radio"></span>
+            </div>
             <h2>Copy text as fragment link</h2>
             <div class="card-image">
                 <img src="https://placehold.co/600x400/EEE/31343C" alt="Fragment link illustration">
             </div>
-            <p>Generate a link that highlights specific text on the page, ideal for referencing specific passages or quotes.</p>
+            <p>Create a link that highlights specific text on the page, ideal for referencing specific passages or
+                quotes.</p>
         </div>
     </div>
-    <!-- TODO: Add link to shortcut configuration page -->
+
+    <div class="footer">
+        <div class="shortcut-tip">
+            <h4>💡Tip</h4>
+            <p>
+                You can add/customize keyboard shortcuts to use the above copy modes without using the right-click context menu.
+            </p>
+            <a href="chrome://extensions/shortcuts" target="_blank">Customize</a>
+        </div>
+    </div>
+
     <script src="options.js"></script>
 </body>
+
 </html>
