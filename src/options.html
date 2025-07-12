@@ -202,6 +202,73 @@
             border-radius: 0.25rem;
             display: none;
         }
+
+        .settings-table {
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .setting-row {
+            display: flex;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-hover);
+            align-items: flex-start;
+            gap: 2rem;
+        }
+
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-type {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .setting-description {
+            color: var(--text-secondary);
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+
+        .setting-description code {
+            background: var(--tip-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.85rem;
+        }
+
+        .setting-input {
+            min-width: 100px;
+            display: flex;
+            align-items: center;
+        }
+
+        .setting-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--radio-border);
+            border-radius: 6px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .setting-select:focus {
+            outline: none;
+            border-color: var(--selected-border);
+        }
     </style>
 </head>
 
@@ -211,13 +278,13 @@
     </div>
 
     <div class="header">
-        <h1>Choose your preferred copy mode</h1>
-        <p>This changes what copy mode is used when you highlight text and use the right-click context menu option from
+        <h1>Choose your preferred copy command</h1>
+        <p>This changes what copy command is used when you highlight text and use the right-click context menu option from
             a web page.</p>
     </div>
 
     <div class="container">
-        <div class="card" data-command="copy_text_as_page_link">
+        <div name="copy-command-option" class="card" data-command="copy_text_as_page_link">
             <div class="radio-container">
                 <span class="radio"></span>
             </div>
@@ -228,7 +295,7 @@
             <p>Create a link that points directly to the current page, perfect for sharing entire articles or documents.
             </p>
         </div>
-        <div class="card" data-command="copy_text_as_fragment_link">
+        <div name="copy-command-option" class="card" data-command="copy_text_as_fragment_link">
             <div class="radio-container">
                 <span class="radio"></span>
             </div>
@@ -241,21 +308,39 @@
         </div>
     </div>
 
+    <div class="shortcut-tip">
+        <h4>💡Tip</h4>
+        <p>
+            You can add/customize keyboard shortcuts via your browser's extension settings to use the above copy commands without using the right-click context menu.
+        </p>
+    </div>
+
     <div class="header">
         <h1>Advanced settings</h1>
         <p>This are additional settings for the extension that enable fine-tuning of the copy text as link behavior. Check the description for each setting before making changes.</p>
     </div>
 
     <div class="container">
-
-    </div>
-
-    <div class="footer">
-        <div class="shortcut-tip">
-            <h4>💡Tip</h4>
-            <p>
-                You can add/customize keyboard shortcuts via your browser's extension settings to use the above copy modes without using the right-click context menu.
-            </p>
+        <div class="settings-table">
+            <div class="setting-row">
+                <div class="setting-info">
+                    <div class="setting-type">Link format</div>
+                    <div class="setting-description">
+                        Controls the format of the link that's copied to the clipboard. HTML is the default and useful for pasting links into rich-text editors like Outlook, while Markdown is great for platforms like GitHub.
+                        <br><br>
+                        <strong>HTML example:</strong><br>
+                        <code>&lt;a href="https://example.com"&gt;Link text&lt;/a&gt;</code><br>
+                        <strong>Markdown example:</strong><br>
+                        <code>[Link text](https://example.com)</code>
+                    </div>
+                </div>
+                <div class="setting-input">
+                    <select id="link-format-input" class="setting-select">
+                        <option value="html">HTML (Default)</option>
+                        <option value="markdown">Markdown</option>
+                    </select>
+                </div>
+            </div>
         </div>
     </div>
 
