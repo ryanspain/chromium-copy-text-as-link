@@ -13,6 +13,18 @@
     "background": {
         "service_worker": "./background.js"
     },
+    "content_scripts": [
+        {
+            "js": [
+                "fragment-generation-utils.js",
+                "foreground.js"
+            ],
+            "matches": [
+                "https://*/*",
+                "http://*/*"
+            ]
+        }
+    ],
     "permissions": [
         "tabs",
         "scripting",
