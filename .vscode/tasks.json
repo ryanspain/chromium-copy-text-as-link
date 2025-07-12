@@ -3,6 +3,12 @@
   "tasks": [
     {
       "type": "shell",
+      "command": "npm install && npx playwright install --with-deps",
+      "label": "Setup Playwright",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
       "command": "npx playwright test",
       "label": "Run all tests",
       "problemMatcher": [],
@@ -23,10 +29,21 @@
       "problemMatcher": []
     },
     {
+      "label": "Delete Chrome Profile",
+      "type": "shell",
+      "command": "cmd",
+      "args": [
+        "/c", // Tells cmd to execute the following command and then exit
+        "rmdir /s /q \"${workspaceFolder}\\.chrome-profile\""
+      ],
+      "problemMatcher": []
+    },
+    {
       "label": "Launch in Google Chrome",
       "type": "shell",
       "command": "chrome", // This assume Google Chrome is in your system path
       "args": [
+        // See Chrome launch flags documentation at https://github.com/GoogleChrome/chrome-launcher/blob/main/docs/chrome-flags-for-tools.md
         // Ensures a clean, isolated user profile, preventing interference from existing Chrome settings.
         "--user-data-dir=${workspaceFolder}/.chrome-profile",
 
@@ -42,6 +59,9 @@
         // Prevents Chrome from asking the user to select a default search engine.
         "--disable-search-engine-choice-screen",
 
+        // Disables "Enhanced ad privacy in Chrome" dialog (if it wasn't disabled through other means).
+        "--disable-features=PrivacySandboxSettings4",
+
         // Disables all installed extensions except those explicitly loaded via --load-extension.
         "--disable-extensions-except=${workspaceFolder}/src",
 
@@ -52,9 +72,11 @@
         "--new-window",
 
         // Opens Chrome with the specified URL on launch.
-        "https://google.com"
-      ]
-      ,
+        "https://www.ryanspain.net/posts/automated-model-driven-power-app-tests-using-playwright"
+      ],
+      "dependsOn": [
+        "Delete Chrome Profile"
+      ],
       "problemMatcher": []
     }
   ]
