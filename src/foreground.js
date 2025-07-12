@@ -5,36 +5,84 @@ chrome.runtime.onMessage.addListener((message) => {
 
     switch (message.command) {
         case 'copy_text_as_page_link':
-            copySelectedTextAsPageLink()
+            copySelectedTextAsPageLink(message.format)
             break;
         case 'copy_text_as_fragment_link':
-            copySelectedTextAsFragmentLink()
+            copySelectedTextAsFragmentLink(message.format);
             break;
         default:
-            throw new Error("Unsupported message");
+            throw new Error(`Unsupported command: ${message.command}`);
     }
 });
 
-function copySelectedTextAsPageLink() {
-
-    var selection = window.getSelection();
-    var url = window.location.href;
-
-    var link = `<a href="${url}" target="_blank">${selection}</a>`;
+function copyHtmlLinkToClipboard(text, url) {
+    var link = `<a href="${url}" target="_blank">${text}</a>`;
 
     var type = "text/html";
     var blob = new Blob([link], { type });
     var data = [new ClipboardItem({ [type]: blob })];
 
-    console.debug('Copying link to clipboard', { selection: selection.toString(), url: url });
+    console.debug('Copying HTML link to clipboard', { text, url });
 
     navigator.clipboard.write(data);
 }
 
-function copySelectedTextAsFragmentLink() {
+function copyMarkdownLinkToClipboard(text, url) {
+
+    // Normalize the text to remove newline breaks and excessive whitespace
+    text = text.replace(/\s+/g, ' ').replace(/\n/g, ' ').trim();
+
+    var link = `[${text}](${url})`;
+
+    var type = "text/plain";
+    var blob = new Blob([link], { type });
+    var data = [new ClipboardItem({ [type]: blob })];
+
+    console.debug('Copying Markdown link to clipboard', { text, url });
+
+    navigator.clipboard.write(data);
+}
+
+function copySelectedTextAsPageLink(format) {
+
+    var text = window.getSelection().toString().trim();
+    var url = window.location.href;
+
+    console.debug('Copying selected text as page link', { text: text, url: url });
+
+    switch (format) {
+        case 'html':
+            copyHtmlLinkToClipboard(text, url);
+            return;
+        case 'markdown':
+            copyMarkdownLinkToClipboard(text, url);
+            return;
+        default:
+            throw new Error(`Unsupported format: ${format}`);
+    }
+}
+
+/**
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+function copySelectedTextAsFragmentLink(format) {
 
     var selection = window.getSelection();
     var url = window.location.href;
+
+    console.debug('Copying selected text as fragment link', { text: selection.toString(), url: url });
 
     const result = exports.generateFragment(selection);
 
@@ -57,15 +105,18 @@ function copySelectedTextAsFragmentLink() {
         reportFailure(result.status);
     }
 
-    var link = `<a href="${url}" target="_blank">${selection}</a>`;
+    var text = selection.toString().trim();
 
-    var type = "text/html";
-    var blob = new Blob([link], { type });
-    var data = [new ClipboardItem({ [type]: blob })];
-
-    console.debug('Copying link to clipboard', { selection: selection.toString(), url: url });
-
-    navigator.clipboard.write(data);
+    switch (format) {
+        case 'html':
+            copyHtmlLinkToClipboard(text, url);
+            return;
+        case 'markdown':
+            copyMarkdownLinkToClipboard(text, url);
+            return;
+        default:
+            throw new Error(`Unsupported format: ${format}`);
+    }
 }
 
 function reportFailure(status) {
