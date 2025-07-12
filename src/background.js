@@ -1,3 +1,5 @@
+const injectedTabs = new Set();
+
 // when the extension is installed or updated, set default values
 chrome.runtime.onInstalled.addListener(function() {
 
@@ -19,17 +21,35 @@ chrome.runtime.onInstalled.addListener(function() {
 // inject the foreground script into the tab
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
+    const scripts = ["./fragment-generation-utils.js", "./foreground.js"];
+
     if (changeInfo.status === 'complete' && /^http/.test(tab.url)) {
 
-        console.debug(`Injecting foreground script(s) into tab with ID: ${tabId}`);
+        // check if the tab has already been injected
+        if (injectedTabs.has(tabId)) {
+            console.debug(`Skipping foreground script(s) injection for tab with ID: ${tabId}, already injected.`);
+            return;
+        }
+
+        console.debug(`Injecting foreground script(s) into tab with ID: ${tabId}`, scripts);
+
+        // measure the time taken to inject the script
+        const startTime = performance.now();
 
         // load the foreground script
         chrome.scripting.executeScript({
             target: { tabId: tabId },
-            files: ["./foreground.js", "./fragment-generation-utils.js"]
+            files: scripts,
+        })
+        .then(() => {
+            const duration = (performance.now() - startTime).toFixed(2);
+            console.debug(`Foreground script(s) successfully injected into tab with ID: ${tabId} in ${duration} ms`);
+            injectedTabs.add(tabId);
+        })
+        .catch((error) => {
+            const duration = (performance.now() - startTime).toFixed(2);
+            console.error(`Error injecting foreground script(s) into tab with ID: ${tabId} after ${duration} ms`, error);
         });
-
-        console.debug(`Foreground script(s) injected into tab with ID: ${tabId}`);
     }
 });
 

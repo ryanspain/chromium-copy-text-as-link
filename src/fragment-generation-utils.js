@@ -1,8 +1,4 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+exports = {};
 exports.setTimeout = exports.isValidRangeForFragmentGeneration = exports.generateFragmentFromRange = exports.generateFragment = exports.forTesting = exports.GenerateFragmentStatus = void 0;
 /**
  * Copyright 2020 Google LLC
