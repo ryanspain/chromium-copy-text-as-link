@@ -1,6 +1,3 @@
-let exports;
-exports = exports || {};
-
 // handle message requests (from keyboard shortcuts or context menu)
 chrome.runtime.onMessage.addListener((message) => {
 
