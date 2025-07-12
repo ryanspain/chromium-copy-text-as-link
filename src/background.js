@@ -36,7 +36,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         .then(() => {
             const duration = (performance.now() - startTime).toFixed(2);
             console.debug(`Foreground script(s) successfully injected into tab with ID: ${tabId} in ${duration} ms`);
-            injectedTabs.add(tabId);
         })
         .catch((error) => {
             const duration = (performance.now() - startTime).toFixed(2);
