@@ -67,7 +67,6 @@ chrome.commands.onCommand.addListener(function (command, tab) {
 
     chrome.storage.sync.get(['preferred_format'], function(settings) {
 
-        let command = command || 'copy_text_as_page_link';
         let format = settings.preferred_format || 'html';
 
         var message = { command: command, format: format };
