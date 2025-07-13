@@ -26,13 +26,8 @@
         }
     ],
     "permissions": [
-        "tabs",
-        "scripting",
         "contextMenus",
         "storage"
-    ],
-    "host_permissions": [
-        "<all_urls>"
     ],
     "commands": {
         "copy_text_as_page_link": {
