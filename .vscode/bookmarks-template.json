@@ -1,0 +1,17 @@
+{
+   "roots": {
+      "bookmark_bar": {
+         "type": "folder",
+         "children": [
+            {
+               "type": "url",
+               "name": "Test",
+               "url": "https://test.com"
+            }
+         ]
+      },
+      "other": {},
+      "synced": {}
+   },
+   "version": 1
+}
