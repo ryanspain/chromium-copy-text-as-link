@@ -5,348 +5,111 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Copy Text as Link Extension Options</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
     <style>
-        :root {
-            --bg-color: #f5f5f5;
-            --card-bg: white;
-            --text-color: #333;
-            --text-secondary: #666;
-            --text-light: #888;
-            --border-hover: #e0e0e0;
-            --card-shadow: rgba(0, 0, 0, 0.1);
-            --card-shadow-hover: rgba(0, 0, 0, 0.2);
-            --selected-border: #2196f3;
-            --selected-shadow: rgba(33, 150, 243, 0.3);
-            --radio-border: #d0d0d0;
-            --radio-selected: #2196f3;
-            --tip-bg: rgba(33, 150, 243, 0.1);
-            --tip-bg-hover: rgba(19, 80, 129, 0.1);
-        }
-
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-color: #1a1a1a;
-                --card-bg: #2d2d2d;
-                --text-color: #e0e0e0;
-                --text-secondary: #b0b0b0;
-                --text-light: #909090;
-                --border-hover: #404040;
-                --card-shadow: rgba(0, 0, 0, 0.3);
-                --card-shadow-hover: rgba(0, 0, 0, 0.4);
-                --selected-border: #2196f3;
-                --selected-shadow: rgba(33, 150, 243, 0.2);
-                --radio-border: #555;
-                --radio-selected: #2196f3;
-                --tip-bg: rgba(33, 150, 243, 0.15);
-                --tip-bg-hover: rgba(33, 150, 243, 0.5);
-            }
-        }
-
         html {
-            min-width: 600px;
+            min-width: 800px;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s ease, color 0.3s ease;
-            padding: 2rem 1rem;
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 25px;
         }
 
-        .header {
-            text-align: center;
-            margin-top: 4rem;
-            margin-bottom: 1rem;
-            max-width: 700px;
-        }
-
-        .header h1 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
-
-        .header p {
-            margin: 0;
-            color: var(--text-secondary);
-            font-size: 1rem;
-            line-height: 1.5;
-        }
-
-        .container {
-            display: flex;
-            gap: 2rem;
-            padding: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-width: 900px;
-        }
-
-        .card {
-            width: 380px;
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 1.5rem;
-            cursor: pointer;
-            border: 2px solid transparent;
-            box-shadow: 0 4px 6px var(--card-shadow);
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .card:hover {
-            box-shadow: 0 0 15px var(--card-shadow-hover);
-            border-color: var(--border-hover);
-            transform: translateY(-2px);
-        }
-
-        .card.selected {
-            border-color: var(--selected-border);
-            box-shadow: 0 0 15px var(--selected-shadow);
-        }
-
-        .radio-container {
-            position: absolute;
-            top: 0.8rem;
-            right: 0.8em;
-        }
-
-        .radio {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid var(--radio-border);
-            display: inline-block;
-            position: relative;
-            transition: border-color 0.3s ease;
-        }
-
-        .radio::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: var(--radio-selected);
-            transition: transform 0.2s ease;
-        }
-
-        .card.selected .radio {
-            border-color: var(--radio-selected);
-        }
-
-        .card.selected .radio::after {
-            transform: translate(-50%, -50%) scale(1);
-        }
-
-        .card h2 {
-            margin: 0 0 1rem 0;
-            color: var(--text-color);
-            font-size: 1.5rem;
-            padding-right: 30px;
-        }
-
-        .card-image {
-            width: 100%;
-            height: 160px;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            overflow: hidden;
-        }
-
-        .card-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .card p {
-            margin: 0;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
-
-        .shortcut-tip {
-            width: 400px;
-            margin-top: 1rem;
-            padding: 1rem 1rem 0.5rem 1rem;
-            background-color: var(--tip-bg);
-            border-radius: 8px;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            transition: background-color 0.3s ease;
-        }
-
-        .shortcut-tip h4 {
-            margin: 0;
-        }
-
-        .shortcut-tip a:hover {
-            background-color: var(--tip-bg-hover);
-        }
-
-        .preview-notice {
-            position: fixed;
-            top: 1rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #fff3cd;
-            color: #856404;
-            padding: 0.75rem 1.25rem;
-            border-radius: 0.25rem;
-            display: none;
-        }
-
-        .settings-table {
-            width: 100%;
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 6px var(--card-shadow);
-            overflow: hidden;
-        }
-
-        .setting-row {
-            display: flex;
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border-hover);
-            align-items: flex-start;
-            gap: 2rem;
-        }
-
-        .setting-row:last-child {
-            border-bottom: none;
-        }
-
-        .setting-info {
-            flex: 1;
-        }
-
-        .setting-type {
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: var(--text-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .setting-description {
-            color: var(--text-secondary);
-            line-height: 1.5;
-            font-size: 0.9rem;
-        }
-
-        .setting-description code {
-            background: var(--tip-bg);
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 0.85rem;
-        }
-
-        .setting-input {
-            min-width: 100px;
-            display: flex;
-            align-items: center;
-        }
-
-        .setting-select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--radio-border);
-            border-radius: 6px;
-            background: var(--card-bg);
-            color: var(--text-color);
-            font-size: 0.9rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .setting-select:focus {
-            outline: none;
-            border-color: var(--selected-border);
+        article:hover:has(input),
+        article:has(input:checked) {
+            outline: 2px solid var(--pico-primary-hover-border);
         }
     </style>
 </head>
 
 <body>
-    <div class="preview-notice">
-        Preview Mode: Chrome Extension APIs not available
-    </div>
-
-    <div class="header">
-        <h1>Choose your preferred copy command</h1>
-        <p>This changes what copy command is used when you highlight text and use the right-click context menu option from
-            a web page.</p>
-    </div>
-
-    <div class="container">
-        <div name="copy-command-option" class="card" data-command="copy_text_as_page_link">
-            <div class="radio-container">
-                <span class="radio"></span>
-            </div>
-            <h2>Copy text as page link</h2>
-            <div class="card-image">
-                <img src="https://placehold.co/600x400/EEE/31343C" alt="Page link illustration">
-            </div>
-            <p>Create a link that points directly to the current page, perfect for sharing entire articles or documents.
+    <main>
+        <!-- Copy command setting -->
+        <header>
+            <h2>Set the default copy command</h2>
+            <p>
+                This changes what copy command is used when you highlight text and use the right-click context menu
+                option from a web page.
             </p>
-        </div>
-        <div name="copy-command-option" class="card" data-command="copy_text_as_fragment_link">
-            <div class="radio-container">
-                <span class="radio"></span>
-            </div>
-            <h2>Copy text as fragment link</h2>
-            <div class="card-image">
-                <img src="https://placehold.co/600x400/EEE/31343C" alt="Fragment link illustration">
-            </div>
-            <p>Create a link that highlights specific text on the page, ideal for referencing specific passages or
-                quotes.</p>
-        </div>
-    </div>
+        </header>
+        <section class="grid" style="margin-bottom: 0;">
+            <label>
+                <article style="padding-top: 5px; padding-bottom: 5px;">
+                    <nav>
+                        <li style="padding-left: 0; padding-bottom: 0;">
+                            <h4>Page link</h4>
+                        </li>
+                        <li style="margin-right: -15px; padding-top: 15px;">
+                            <input type="radio" name="copy-mode-option" value="copy_text_as_page_link">
+                        </li>
+                    </nav>
+                    <img style="padding-top: 5px; padding-bottom: 15px;" src="https://placehold.co/600x200/EEE/31343C"
+                        alt="Page link illustration">
+                    <p style="font-size: smaller;">
+                        Create a link using the current pages URL, perfect for sharing entire articles or documents.
+                    </p>
+                </article>
+            </label>
+            <label>
+                <article style="padding-top: 5px; padding-bottom: 5px;">
+                    <nav>
+                        <li style="padding-left: 0; padding-bottom: 0;">
+                            <h4>Fragment link</h4>
+                        </li>
+                        <li style="margin-right: -15px; padding-top: 15px;">
+                            <input type="radio" name="copy-mode-option" value="copy_text_as_fragment_link">
+                        </li>
+                    </nav>
+                    <img style="padding-top: 5px; padding-bottom: 15px;" src="https://placehold.co/600x200/EEE/31343C"
+                        alt="Fragment link illustration">
+                    <p style="font-size: smaller;">
+                        Create a link to a specific highlight on the page, ideal for referencing specific passages or
+                        quotes.
+                    </p>
+                </article>
+            </label>
+        </section>
 
-    <div class="shortcut-tip">
-        <h4>💡Tip</h4>
-        <p>
-            You can add/customize keyboard shortcuts via your browser's extension settings to use the above copy commands without using the right-click context menu.
-        </p>
-    </div>
+        <!-- Keyboard shortcut tip -->
+        <article style="background-color: rgba(144, 238, 144, 0.281);">
+            <p style="margin-bottom: 10px;">
+                <strong>💡 Tip</strong>
+            </p>
+            <p style="margin-bottom: 0;">
+                You can add/customize keyboard shortcuts via your browser's extension settings to use the above copy
+                commands without using the right-click context menu.
+            </p>
+        </article>
 
-    <div class="header">
-        <h1>Advanced settings</h1>
-        <p>This are additional settings for the extension that enable fine-tuning of the copy text as link behavior. Check the description for each setting before making changes.</p>
-    </div>
-
-    <div class="container">
-        <div class="settings-table">
-            <div class="setting-row">
-                <div class="setting-info">
-                    <div class="setting-type">Link format</div>
-                    <div class="setting-description">
-                        Controls the format of the link that's copied to the clipboard. HTML is the default and useful for pasting links into rich-text editors like Outlook, while Markdown is great for platforms like GitHub.
-                        <br><br>
-                        <strong>HTML example:</strong><br>
-                        <code>&lt;a href="https://example.com"&gt;Link text&lt;/a&gt;</code><br>
-                        <strong>Markdown example:</strong><br>
-                        <code>[Link text](https://example.com)</code>
-                    </div>
-                </div>
-                <div class="setting-input">
-                    <select id="link-format-input" class="setting-select">
-                        <option value="html">HTML (Default)</option>
-                        <option value="markdown">Markdown</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
+        <!-- Link format setting -->
+        <header>
+            <h2>Advanced settings</h2>
+            <p>
+                These are additional settings for the extension that enable fine-tuning of the copy text as link
+                behavior. Check the description for each setting before making changes.
+            </p>
+        </header>
+        <label>
+            <article style="padding-top: 5px; padding-bottom: 5px;">
+                <nav>
+                    <li style="padding-left: 0; padding-bottom: 0;">
+                        <h4>Copy as Markdown link</h4>
+                    </li>
+                    <li style="margin-right: -15px; padding-top: 15px;">
+                        <input type="checkbox" role="switch" name="copy-as-markdown-switch" />
+                    </li>
+                </nav>
+                <img style="padding-top: 5px; padding-bottom: 15px;" src="https://placehold.co/800x100/EEE/31343C"
+                    alt="Markdown link illustration">
+                <p style="font-size: smaller;">
+                    If enabled, the copied link will be in Markdown format. This is useful for pasting links into
+                    platforms like GitHub.
+                </p>
+            </article>
+        </label>
+    </main>
 
     <script src="options.js"></script>
 </body>

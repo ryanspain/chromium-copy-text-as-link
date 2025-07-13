@@ -1,60 +1,81 @@
-// Check if we're running in a Chrome extension context
-const isExtension = typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync;
-
-if (!isExtension) {
-    document.querySelector('.preview-notice').style.display = 'block';
-}
-
-function loadPreferences() {
-
-    if (!isExtension) return;
-
-    chrome.storage.sync.get(['preferred_command', 'preferred_format'], (settings) => {
-        if (settings.preferred_command) {
-            const copyCommandToggle = document.querySelector(`[data-command="${settings.preferred_command}"]`);
-            if (copyCommandToggle) copyCommandToggle.classList.add('selected');
+var CopyTextAsLink = {
+    Constants: {
+        CopyMode: {
+            COPY_TEXT_AS_PAGE_LINK: 'copy_text_as_page_link',
+            COPY_TEXT_AS_FRAGMENT_LINK: 'copy_text_as_fragment_link'
+        },
+        LinkFormat: {
+            COPY_AS_MARKDOWN: 'markdown',
+            COPY_AS_HTML: 'html'
         }
+    },
+    onLoad: function () {
+        // Load user settings from storage
+        CopyTextAsLink.restoreUserSettings();
 
-        if (settings.preferred_format) {
-            const linkFormatSelect = document.getElementById('link-format-input');
-            if (linkFormatSelect) linkFormatSelect.value = settings.preferred_format;
-        }
-    });
-}
-
-// Handle copy command preference selection
-document.getElementsByName('copy-command-option').forEach(copyCommandToggle => {
-    copyCommandToggle.addEventListener('click', function () {
-
-        // Remove selected class from all other copy command options
-        document
-            .getElementsByName('copy-command-option')
-            .forEach(c => c.classList.remove('selected'));
-
-        // Add selected class to clicked copy command option
-        this.classList.add('selected');
-
-        const selectedCommand = this.dataset.command;
-
-        if (!isExtension) return;
-
-        chrome.storage.sync.set({ preferred_command: selectedCommand }, function() {
-            console.debug('Preferred copy command saved:', selectedCommand);
+        // Listen for changes to copy mode
+        document.getElementsByName('copy-mode-option').forEach(function (option) {
+            option.addEventListener('change', (event) => CopyTextAsLink.onChangeCopyMode(event));
         });
-    });
-});
 
-// Handle link format preference selection
-document.getElementById('link-format-input').addEventListener('change', function() {
+        // Listen for changes to link format
+        document.getElementsByName('copy-as-markdown-switch').forEach(function (toggle) {
+            toggle.addEventListener('change', (event) => CopyTextAsLink.onChangeLinkFormat(event));
+        });
+    },
+    restoreUserSettings: function () {
+        if (CopyTextAsLink.isDebugMode) return;
+        chrome.storage.sync.get(['preferred_command', 'preferred_format'], function (settings) {
+            if (settings.preferred_command) CopyTextAsLink.setCopyMode(settings.preferred_command);
+            if (settings.preferred_format) CopyTextAsLink.setLinkFormat(settings.preferred_format);
+        });
+    },
+    getCopyMode: function () {
+        var checked = document.querySelector('input[name="copy-mode-option"]:checked');
+        return checked ? checked.value : undefined;
+    },
+    setCopyMode: function (mode) {
+        var radio = document.querySelector(`input[name="copy-mode-option"][value="${mode}"]`);
+        if (radio) radio.checked = true;
+        else console.debug(`Invalid copy mode: ${mode}`);
+    },
+    onChangeCopyMode: function (event) {
+        var copyCommand = event.target.value;
+        console.log(`Preferred copy command changed to: ${copyCommand}`);
 
-    const selectedFormat = this.value;
+        if (CopyTextAsLink.isDebugMode) return;
 
-    if (!isExtension) return;
+        chrome.storage.sync.set({ preferred_command: copyCommand }, function () {
+            console.debug(`Preferred copy command saved: ${copyCommand}`);
+        });
+    },
+    getLinkFormat: function () {
+        return document.querySelector('input[name="copy-as-markdown-switch"]').checked ? 'markdown' : 'html';
+    },
+    setLinkFormat: function (format) {
+        var switchElement = document.querySelector('input[name="copy-as-markdown-switch"]');
+        switch (format) {
+            case CopyTextAsLink.Constants.LinkFormat.COPY_AS_MARKDOWN:
+                switchElement.checked = true;
+                break;
+            case CopyTextAsLink.Constants.LinkFormat.COPY_AS_HTML:
+                switchElement.checked = false;
+                break;
+            default:
+                console.debug(`Invalid link format: ${format}`);
+        }
+    },
+    onChangeLinkFormat: function (event) {
+        var linkFormat = event.target.checked ? 'markdown' : 'html';
+        console.log(`Preferred link format changed to: ${linkFormat}`);
 
-    chrome.storage.sync.set({ preferred_format: selectedFormat }, function() {
-        console.debug('Preferred link format saved:', selectedFormat);
-    });
-});
+        if (CopyTextAsLink.isDebugMode) return;
 
-// Load initial preferences
-loadPreferences();
+        chrome.storage.sync.set({ preferred_format: linkFormat }, function () {
+            console.debug(`Preferred link format saved: ${linkFormat}`);
+        });
+    },
+    isDebugMode: typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync ? false : true
+};
+
+CopyTextAsLink.onLoad();
