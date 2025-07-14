@@ -5,8 +5,18 @@
          "children": [
             {
                "type": "url",
-               "name": "Test",
-               "url": "https://test.com"
+               "name": "Extensions",
+               "url": "chrome://extensions/"
+            },
+            {
+               "type": "url",
+               "name": "Extension options",
+               "url": "chrome-extension://pbhbeilgckgafmnnoopmcccnhoopfagd/options.html"
+            },
+            {
+               "type": "url",
+               "name": "Service workers",
+               "url": "chrome://serviceworker-internals/"
             }
          ]
       },

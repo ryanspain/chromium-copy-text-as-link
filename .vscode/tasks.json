@@ -86,7 +86,7 @@
       ],
       "dependsOn": [
         "Delete Chrome Profile",
-        "Add Developer Bookmarks Chrome Profile"
+        "Add Development Bookmarks to Chrome Profile"
       ],
       "problemMatcher": []
     }
