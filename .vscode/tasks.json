@@ -33,8 +33,18 @@
       "type": "shell",
       "command": "cmd",
       "args": [
-        "/c", // Tells cmd to execute the following command and then exit
-        "rmdir /s /q \"${workspaceFolder}\\.chrome-profile\""
+        "/c",
+        "if exist \"${workspaceFolder}\\.chrome-profile\" rmdir /s /q \"${workspaceFolder}\\.chrome-profile\""
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Add Development Bookmarks to Chrome Profile",
+      "type": "shell",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "mkdir \"${workspaceFolder}\\.chrome-profile\\Default\" 2>nul && copy /Y \"${workspaceFolder}\\.vscode\\bookmarks-template.json\" \"${workspaceFolder}\\.chrome-profile\\Default\\Bookmarks\""
       ],
       "problemMatcher": []
     },
@@ -75,7 +85,8 @@
         "https://www.ryanspain.net/posts/automated-model-driven-power-app-tests-using-playwright"
       ],
       "dependsOn": [
-        "Delete Chrome Profile"
+        "Delete Chrome Profile",
+        "Add Development Bookmarks to Chrome Profile"
       ],
       "problemMatcher": []
     }
