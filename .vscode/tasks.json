@@ -89,6 +89,45 @@
         "Add Development Bookmarks to Chrome Profile"
       ],
       "problemMatcher": []
+    },
+    {
+      "label": "Launch in Chromium",
+      "type": "shell",
+      "command": "chromium", // This assumes Chromium is in your system path
+      "args": [
+        // See Chrome launch flags documentation at https://github.com/GoogleChrome/chrome-launcher/blob/main/docs/chrome-flags-for-tools.md
+        // Ensures a clean, isolated user profile, preventing interference from existing Chrome settings.
+        // TODO: This does not seem to work with Chromium - need to investigate further.
+        "--user-data-dir=${workspaceFolder}/.chromium-profile",
+
+        // Prevents Chromium from prompting to set itself as the default browser.
+        "--no-default-browser-check",
+
+        // Disables prompt to sign in to Chromium.
+        "--disable-sync",
+
+        // Disables the first-run setup screen that appears when Chromium is launched with a new profile.
+        "--disable-first-run-ui",
+
+        // Prevents Chromium from asking the user to select a default search engine.
+        "--disable-search-engine-choice-screen",
+
+        // Disables "Enhanced ad privacy in Chromium" dialog (if it wasn't disabled through other means).
+        "--disable-features=PrivacySandboxSettings4",
+
+        // Disables all installed extensions except those explicitly loaded via --load-extension.
+        "--disable-extensions-except=${workspaceFolder}/src",
+
+        // Loads the specified extension when Chromium is launched.
+        "--load-extension=${workspaceFolder}/src",
+
+        // Forces Chromium to open in a new window rather than a new tab in an existing instance.
+        "--new-window",
+
+        // Opens Chromium with the specified URL on launch.
+        "https://www.ryanspain.net/posts/automated-model-driven-power-app-tests-using-playwright"
+      ],
+      "problemMatcher": []
     }
   ]
 }
