@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copy Text as Link Extension Options</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <style>
+        html {
+            min-width: 800px;
+        }
+
+        body {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 25px;
+        }
+
+        article:hover:has(input),
+        article:has(input:checked) {
+            outline: 2px solid var(--pico-primary-hover-border);
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <!-- Copy command setting -->
+        <header>
+            <h2>Set the default copy command</h2>
+            <p>
+                This changes what copy command is used when you highlight text and use the right-click context menu
+                option from a web page.
+            </p>
+        </header>
+        <section class="grid" style="margin-bottom: 0;">
+            <label>
+                <article style="padding-top: 5px; padding-bottom: 5px;">
+                    <nav>
+                        <li style="padding-left: 0; padding-bottom: 0;">
+                            <h4>Page link</h4>
+                        </li>
+                        <li style="margin-right: -15px; padding-top: 15px;">
+                            <input type="radio" name="copy-mode-option" value="copy_text_as_page_link">
+                        </li>
+                    </nav>
+                    <img style="padding-top: 5px; padding-bottom: 15px;" src="/images/page_link.png"
+                        alt="Page link illustration">
+                    <p style="font-size: smaller;">
+                        Create a link using the current pages URL, perfect for sharing entire articles or documents.
+                    </p>
+                </article>
+            </label>
+            <label>
+                <article style="padding-top: 5px; padding-bottom: 5px;">
+                    <nav>
+                        <li style="padding-left: 0; padding-bottom: 0;">
+                            <h4>Fragment link</h4>
+                        </li>
+                        <li style="margin-right: -15px; padding-top: 15px;">
+                            <input type="radio" name="copy-mode-option" value="copy_text_as_fragment_link">
+                        </li>
+                    </nav>
+                    <img style="padding-top: 5px; padding-bottom: 15px;" src="/images/fragment_link.png"
+                        alt="Fragment link illustration">
+                    <p style="font-size: smaller;">
+                        Create a link to a specific highlight on the page, ideal for referencing specific passages or
+                        quotes.
+                    </p>
+                </article>
+            </label>
+        </section>
+
+        <!-- Keyboard shortcut tip -->
+        <article style="background-color: rgba(144, 238, 144, 0.281);">
+            <p style="margin-bottom: 10px;">
+                <strong>💡 Tip</strong>
+            </p>
+            <p style="margin-bottom: 0;">
+                You can add/customize keyboard shortcuts via your browser's extension settings to use the above copy
+                commands without using the right-click context menu.
+            </p>
+        </article>
+
+        <!-- Link format setting -->
+        <header>
+            <h2>Advanced settings</h2>
+            <p>
+                These are additional settings for the extension that enable fine-tuning of the copy text as link
+                behavior. Check the description for each setting before making changes.
+            </p>
+        </header>
+        <label>
+            <article style="padding-top: 5px; padding-bottom: 5px;">
+                <nav>
+                    <li style="padding-left: 0; padding-bottom: 0;">
+                        <h4>Copy as Markdown link</h4>
+                    </li>
+                    <li style="margin-right: -15px; padding-top: 15px;">
+                        <input type="checkbox" role="switch" name="copy-as-markdown-switch" />
+                    </li>
+                </nav>
+                <img style="padding-top: 5px; padding-bottom: 15px;" src="/images/markdown_link.png"
+                    alt="Markdown link illustration">
+                <p style="font-size: smaller;">
+                    If enabled, the copied link will be in Markdown format. This is useful for pasting links into
+                    platforms like GitHub.
+                </p>
+            </article>
+        </label>
+    </main>
+
+    <script src="options.js"></script>
+</body>
+
+</html>

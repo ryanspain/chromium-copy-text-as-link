@@ -1,0 +1,10 @@
+# Node
+node_modules/
+
+# Playwright
+test/results/
+test/report/
+playwright/.cache/
+
+# Google Chrome
+.chrome-profile/

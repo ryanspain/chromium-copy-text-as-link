@@ -1,23 +1,57 @@
 {
     "name": "Copy Text as Link",
     "description": "Copy the selected text as a HTML link to the clipboard that can be pasted in in supported editors with the hyperlink intact.",
-    "version": "0.3",
+    "version": "2.0",
     "manifest_version": 3,
+    "options_page": "options.html",
     "icons": {
-        "16": "./images/icon-16x16.png",
-        "32": "./images/icon-32x32.png",
-        "48": "./images/icon-48x48.png",
-        "128": "./images/icon-128x128.png"
+        "16": "images/icon-16x16.png",
+        "32": "images/icon-32x32.png",
+        "48": "images/icon-48x48.png",
+        "128": "images/icon-128x128.png"
+    },
+    "action": {
+        "default_icon": {
+            "16": "images/icon-16x16.png",
+            "32": "images/icon-32x32.png",
+            "48": "images/icon-48x48.png",
+            "128": "images/icon-128x128.png"
+        },
+        "default_title": "Configure Copy Text as Link",
+        "default_popup": "options.html"
     },
     "background": {
-        "service_worker": "./background.js"
+        "service_worker": "background.js"
     },
-    "permissions": [
-        "tabs",
-        "scripting",
-        "contextMenus"
+    "content_scripts": [
+        {
+            "js": [
+                "fragment-generation-utils.js",
+                "foreground.js"
+            ],
+            "matches": [
+                "https://*/*",
+                "http://*/*"
+            ]
+        }
     ],
-    "host_permissions": [
-        "<all_urls>"
-    ]
+    "permissions": [
+        "contextMenus",
+        "storage"
+    ],
+    "commands": {
+        "copy_text_as_page_link": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+L"
+            },
+            "description": "Copy text as a page link"
+        },
+        "copy_text_as_fragment_link": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+F"
+            },
+            "description": "Copy text as a fragment link"
+        }
+    },
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyu9Gu+yVVCp/Ngb3OxHgTpgpcRTxjcM9sQ22eXnG1RWm44fqzXsBB/umvFlkwxtK2yWNoDyr8d20qdhlqFPNq00fbM11xWbW8Kjp/dVFJE6kLuaytX/Hl222wMRKhjBtlmSboddm7bVWGGZt4yWBX0XBVp+KMwDXeg18Sra/J8tJOtlVFoYAHbXKVqF2BfQbcAh7Th/GyWSmIveHIdZDFyxbQIPv/o7P0wJSjgqQlLTqdAbmrHsVYxSok8nxoKL2QJkZwLRE7bpx060/WQ0uSm6Uck9PiI0mfBewOzZ9kazt+61cL4XjBqnxgg7wSi3vA7YbDvGmG0GRzB+ikyjzJQIDAQAB"
 }

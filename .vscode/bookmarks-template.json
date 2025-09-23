@@ -1,0 +1,27 @@
+{
+   "roots": {
+      "bookmark_bar": {
+         "type": "folder",
+         "children": [
+            {
+               "type": "url",
+               "name": "Extensions",
+               "url": "chrome://extensions/"
+            },
+            {
+               "type": "url",
+               "name": "Extension options",
+               "url": "chrome-extension://pbhbeilgckgafmnnoopmcccnhoopfagd/options.html"
+            },
+            {
+               "type": "url",
+               "name": "Service workers",
+               "url": "chrome://serviceworker-internals/"
+            }
+         ]
+      },
+      "other": {},
+      "synced": {}
+   },
+   "version": 1
+}
