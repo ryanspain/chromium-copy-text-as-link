@@ -18,9 +18,15 @@ chrome.runtime.onMessage.addListener((message) => {
 function copyHtmlLinkToClipboard(text, url) {
     var link = `<a href="${url}" target="_blank">${text}</a>`;
 
-    var type = "text/html";
-    var blob = new Blob([link], { type });
-    var data = [new ClipboardItem({ [type]: blob })];
+    // Create both HTML and plain text versions for better clipboard preview support
+    var htmlBlob = new Blob([link], { type: "text/html" });
+    var plainText = `${text} (${url})`;
+    var textBlob = new Blob([plainText], { type: "text/plain" });
+    
+    var data = [new ClipboardItem({ 
+        "text/html": htmlBlob,
+        "text/plain": textBlob
+    })];
 
     console.debug('Copying HTML link to clipboard', { text, url });
 
