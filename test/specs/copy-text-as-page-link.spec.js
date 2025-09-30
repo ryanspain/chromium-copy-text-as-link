@@ -10,9 +10,9 @@ const TEST_DATA = [
   },
   {
     id: 2,
-    text: 'Extensions only work in Chrome / Chromium launched with a persistent context. Use custom browser args at your own risk, as some of them may break Playwright functionality.',
+    text: 'Chrome extensions',
     url: 'https://playwright.dev/docs/chrome-extensions',
-    expectedText: 'Extensions only work in Chrome / Chromium launched with a persistent context. Use custom browser args at your own risk, as some of them may break Playwright functionality.',
+    expectedText: 'Chrome extensions',
     expectedUrl: 'https://playwright.dev/docs/chrome-extensions',
   }
 ]
