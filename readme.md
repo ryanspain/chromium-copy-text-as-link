@@ -6,14 +6,7 @@ This is a [Chromium-based browser](#supported-browsers) extension that copies a 
 
 The link can be pasted into any rich-text editor. e.g. Outlook, Notion, Word. No need to copy the URL and text separately!
 
-<div style="display: flex; align-items: center; justify-content: center; margin: 20px 0px">
-     <a href="https://chrome.google.com/webstore/detail/copy-text-as-link/jdhbnbfdhfndpjafikjmbdabogdecenp">
-        <img src="./assets/install.png" alt="Install via the Chrome Web Store" style="margin-right: 10px;">
-    </a>
-     <a href="https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked">
-     or install from source code
-     </a>
-</div>
+![Install via the Chrome Web Store](./assets/install.png)
 
 ## Usage
 
