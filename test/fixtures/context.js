@@ -2,9 +2,10 @@ import { chromium, test as baseTest, expect } from "@playwright/test";
 import path from 'path';
 
 const test = baseTest.extend({
-  context: async ({ }, use) => {
+  context: async ({ channel }, use) => {
     const context = await chromium.launchPersistentContext('', {
       headless: process.env.CI ? true : false,
+      channel: channel || undefined,
       args: [
         `--disable-extensions-except=${path.join(__dirname, '../../src')}`,
         `--load-extension=${path.join(__dirname, '../../src')}`
