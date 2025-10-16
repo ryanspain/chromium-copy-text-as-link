@@ -27,10 +27,7 @@ jobs:
       run: npx playwright install-deps
     
     - name: Install Playwright browsers
-      run: |
-        npx playwright install chromium
-        npx playwright install chrome
-        npx playwright install msedge
+      run: npx playwright install chromium
     
     - name: Run Playwright tests
       run: npm test

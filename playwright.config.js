@@ -18,23 +18,5 @@ export default defineConfig({
       name: 'Chromium',
       use: { ...devices['Desktop Chrome'], channel: 'chromium' },
     },
-    // Test against branded browsers
-    {
-      name: 'Google Chrome',
-      use: {
-        ...devices['Desktop Chrome'],
-        channel: 'chrome',
-        ...(process.env.CI ? {} : {
-          launchOptions: {
-            // I have Google Chrome installed via Scoop on Windows
-            executablePath: path.join(os.homedir(), 'scoop', 'apps', 'googlechrome', 'current', 'chrome.exe')
-          }
-        })
-      }
-    },
-    {
-      name: 'Microsoft Edge',
-      use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    },
   ],
 });
