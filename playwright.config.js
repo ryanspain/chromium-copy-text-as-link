@@ -24,11 +24,12 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         channel: 'chrome',
-        launchOptions: {
-          // I have Google Chrome installed via Scoop on Windows
-          // TODO: Make this work in CI environments
-          executablePath: path.join(os.homedir(), 'scoop', 'apps', 'googlechrome', 'current', 'chrome.exe')
-        }
+        ...(process.env.CI ? {} : {
+          launchOptions: {
+            // I have Google Chrome installed via Scoop on Windows
+            executablePath: path.join(os.homedir(), 'scoop', 'apps', 'googlechrome', 'current', 'chrome.exe')
+          }
+        })
       }
     },
     {

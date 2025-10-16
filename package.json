@@ -6,7 +6,9 @@
     "@playwright/test": "^1.50.1",
     "@types/node": "^22.13.1"
   },
-  "scripts": {},
+  "scripts": {
+    "test": "playwright test"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ryanspain/chromium-copy-text-as-link.git"

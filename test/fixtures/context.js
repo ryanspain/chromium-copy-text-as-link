@@ -4,7 +4,7 @@ import path from 'path';
 const test = baseTest.extend({
   context: async ({ }, use) => {
     const context = await chromium.launchPersistentContext('', {
-      headless: false,
+      headless: process.env.CI ? true : false,
       args: [
         `--disable-extensions-except=${path.join(__dirname, '../../src')}`,
         `--load-extension=${path.join(__dirname, '../../src')}`
