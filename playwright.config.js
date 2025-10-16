@@ -1,6 +1,4 @@
 import { defineConfig, devices } from "@playwright/test";
-import path from "path";
-import os from "os";
 
 export default defineConfig({
   testDir: './test/specs',
