@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "This is a Chromium browser extension that builds a link using the highlighted text on a web page and the active tabs URL.",
   "devDependencies": {
-    "@playwright/test": "^1.50.1",
+    "@playwright/test": "^1.56.0",
     "@types/node": "^22.13.1"
   },
   "scripts": {
