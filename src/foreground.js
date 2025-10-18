@@ -1,7 +1,7 @@
 // handle message requests (from keyboard shortcuts or context menu)
 chrome.runtime.onMessage.addListener((message) => {
 
-    console.debug('Command received', message);
+    console.debug(`Command received (${window.location.host})`, message);
 
     switch (message.command) {
         case 'copy_text_as_page_link':
@@ -28,7 +28,7 @@ function copyHtmlLinkToClipboard(text, url) {
         "text/plain": textBlob
     })];
 
-    console.debug('Copying HTML link to clipboard', { text, url });
+    console.debug(`Copying HTML link to clipboard (${window.location.host})`, { text, url });
 
     navigator.clipboard.write(data);
 }
@@ -44,7 +44,7 @@ function copyMarkdownLinkToClipboard(text, url) {
     var blob = new Blob([link], { type });
     var data = [new ClipboardItem({ [type]: blob })];
 
-    console.debug('Copying Markdown link to clipboard', { text, url });
+    console.debug(`Copying Markdown link to clipboard (${window.location.host})`, { text, url });
 
     navigator.clipboard.write(data);
 }
@@ -54,7 +54,7 @@ function copySelectedTextAsPageLink(format) {
     var text = window.getSelection().toString().trim();
     var url = window.location.href;
 
-    console.debug('Copying selected text as page link', { text: text, url: url });
+    console.debug(`Copying selected text as page link (${window.location.host})`, { text: text, url: url });
 
     switch (format) {
         case 'html':
@@ -88,7 +88,7 @@ function copySelectedTextAsFragmentLink(format) {
     var selection = window.getSelection();
     var url = window.location.href;
 
-    console.debug('Copying selected text as fragment link', { text: selection.toString(), url: url });
+    console.debug(`Copying selected text as fragment link (${window.location.host})`, { text: selection.toString(), url: url });
 
     const result = exports.generateFragment(selection);
 
