@@ -77,3 +77,24 @@ chrome.commands.onCommand.addListener(function (command, tab) {
         chrome.tabs.sendMessage(tab.id, message);
     });
 });
+
+// scenario 3: foreground script requests clipboard write
+// receive link data from any frame and forward to top-level frame only
+chrome.runtime.onMessage.addListener((message, sender) => {
+
+    if (message.command === 'request_clipboard_write') {
+        console.debug('Received clipboard write request from tab', sender.tab.id, message.data);
+
+        // Forward the data to the top-level frame only (frameId: 0)
+        chrome.tabs.sendMessage(
+            sender.tab.id,
+            {
+                command: 'write_to_clipboard',
+                data: message.data
+            },
+            {
+                frameId: 0  // Send only to top-level frame that has clipboard access
+            }
+        );
+    }
+});

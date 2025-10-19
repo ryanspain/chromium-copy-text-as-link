@@ -1,19 +1,72 @@
-// handle message requests (from keyboard shortcuts or context menu)
+// Message handler - receives commands from background script
 chrome.runtime.onMessage.addListener((message) => {
 
     console.debug(`Command received (${window.location.host})`, message);
 
     switch (message.command) {
         case 'copy_text_as_page_link':
-            copySelectedTextAsPageLink(message.format)
+            preparePageLinkData(message.format);
             break;
         case 'copy_text_as_fragment_link':
-            copySelectedTextAsFragmentLink(message.format);
+            prepareFragmentLinkData(message.format);
+            break;
+        case 'write_to_clipboard':
+            // Only top-level frames should handle clipboard writes
+            if (window !== window.top)
+                return;
+
+            writeToClipboard(message.data);
             break;
         default:
             throw new Error(`Unsupported command: ${message.command}`);
     }
 });
+
+// Prepare page link data and send to background for clipboard writing
+function preparePageLinkData(format) {
+    // Try to get selected text from window selection or from active input/textarea
+    let text = window.getSelection().toString().trim();
+
+    // Only proceed if we actually have selected text
+    if (!text) {
+        console.debug(`No text selected in frame (${window.location.host}), ignoring command`);
+        return;
+    }
+
+    var url = window.location.href;
+
+    console.debug(`Preparing page link data (${window.location.host})`, { text, url, format });
+
+    const linkData = {
+        type: 'page_link',
+        text: text,
+        url: url,
+        format: format
+    };
+
+    // Send data to background script, which will forward to top-level frame
+    chrome.runtime.sendMessage({ command: 'request_clipboard_write', data: linkData });
+}
+
+// Write prepared link data to clipboard (only called in top-level frame)
+function writeToClipboard(linkData) {
+    console.debug(`Writing to clipboard (${window.location.host})`, linkData);
+
+    try {
+        switch (linkData.format) {
+            case 'html':
+                copyHtmlLinkToClipboard(linkData.text, linkData.url);
+                break;
+            case 'markdown':
+                copyMarkdownLinkToClipboard(linkData.text, linkData.url);
+                break;
+            default:
+                throw new Error(`Unsupported format: ${linkData.format}`);
+        }
+    } catch (error) {
+        console.error(`Failed to write to clipboard (${window.location.host})`, error);
+    }
+}
 
 function copyHtmlLinkToClipboard(text, url) {
     var link = `<a href="${url}" target="_blank">${text}</a>`;
@@ -22,15 +75,17 @@ function copyHtmlLinkToClipboard(text, url) {
     var htmlBlob = new Blob([link], { type: "text/html" });
     var plainText = `${text} (${url})`;
     var textBlob = new Blob([plainText], { type: "text/plain" });
-    
-    var data = [new ClipboardItem({ 
+
+    // Create clipboard item for both HTML and plain text links
+    var data = [new ClipboardItem({
         "text/html": htmlBlob,
         "text/plain": textBlob
     })];
 
+    // Write HTML link to clipboard
     console.debug(`Copying HTML link to clipboard (${window.location.host})`, { text, url });
-
     navigator.clipboard.write(data);
+    console.debug(`HTML link copied to clipboard (${window.location.host})`, { text, url });
 }
 
 function copyMarkdownLinkToClipboard(text, url) {
@@ -44,28 +99,10 @@ function copyMarkdownLinkToClipboard(text, url) {
     var blob = new Blob([link], { type });
     var data = [new ClipboardItem({ [type]: blob })];
 
+    // Write Markdown link to clipboard
     console.debug(`Copying Markdown link to clipboard (${window.location.host})`, { text, url });
-
     navigator.clipboard.write(data);
-}
-
-function copySelectedTextAsPageLink(format) {
-
-    var text = window.getSelection().toString().trim();
-    var url = window.location.href;
-
-    console.debug(`Copying selected text as page link (${window.location.host})`, { text: text, url: url });
-
-    switch (format) {
-        case 'html':
-            copyHtmlLinkToClipboard(text, url);
-            return;
-        case 'markdown':
-            copyMarkdownLinkToClipboard(text, url);
-            return;
-        default:
-            throw new Error(`Unsupported format: ${format}`);
-    }
+    console.debug(`Markdown link copied to clipboard (${window.location.host})`, { text, url });
 }
 
 /**
@@ -83,12 +120,20 @@ function copySelectedTextAsPageLink(format) {
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-function copySelectedTextAsFragmentLink(format) {
+function prepareFragmentLinkData(format) {
 
     var selection = window.getSelection();
+    var text = selection.toString().trim();
+
+    // Only proceed if we actually have selected text
+    if (!text) {
+        console.debug(`No text selected in frame (${window.location.host}), ignoring command`);
+        return;
+    }
+
     var url = window.location.href;
 
-    console.debug(`Copying selected text as fragment link (${window.location.host})`, { text: selection.toString(), url: url });
+    console.debug(`Preparing fragment link data (${window.location.host})`, { text, url, format });
 
     const result = exports.generateFragment(selection);
 
@@ -109,20 +154,18 @@ function copySelectedTextAsFragmentLink(format) {
     else {
         console.error(`Unable to generate fragment link. ${result.status}`);
         reportFailure(result.status);
+        return; // Don't send message if fragment generation failed
     }
 
-    var text = selection.toString().trim();
+    const linkData = {
+        type: 'fragment_link',
+        text: text,
+        url: url,
+        format: format
+    };
 
-    switch (format) {
-        case 'html':
-            copyHtmlLinkToClipboard(text, url);
-            return;
-        case 'markdown':
-            copyMarkdownLinkToClipboard(text, url);
-            return;
-        default:
-            throw new Error(`Unsupported format: ${format}`);
-    }
+    // Send data to background script, which will forward to top-level frame
+    chrome.runtime.sendMessage({ command: 'request_clipboard_write', data: linkData });
 }
 
 function reportFailure(status) {

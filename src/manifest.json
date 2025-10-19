@@ -32,7 +32,8 @@
             "matches": [
                 "https://*/*",
                 "http://*/*"
-            ]
+            ],
+            "all_frames": true
         }
     ],
     "permissions": [
