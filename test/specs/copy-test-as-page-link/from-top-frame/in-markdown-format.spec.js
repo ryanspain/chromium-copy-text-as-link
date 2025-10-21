@@ -53,6 +53,9 @@ TEST_DATA.forEach(({ id, url, text, expectedText, expectedUrl }) => {
       });
     });
 
+    // Wait a moment to ensure clipboard write is complete
+    await page.waitForTimeout(1000);
+
     // Navigate to a rich-text editor to verify pasting
     await page.goto('https://trix-editor.org/');
     await page.getByRole('textbox').clear();
