@@ -1,4 +1,4 @@
-import { expect, test } from '../fixtures/context';
+import { expect, test } from '../../../fixtures/context';
 
 const TEST_DATA = [
   {
@@ -19,20 +19,25 @@ const TEST_DATA = [
 
 TEST_DATA.forEach(({ id, url, text, expectedText, expectedUrl }) => {
 
-  test(`test ${id}/${TEST_DATA.length} copy text as page link`, async ({ page }) => {
+  test(`copy text as page link from top frame in HTML format (${id}/${TEST_DATA.length})`, async ({ page }) => {
 
-    // Test data
-    let expectedText = "The Free Encyclopedia";
-    let expectedUrl = "https://www.wikipedia.org/";
+    // Wait for service worker to be available
+    await page.waitForTimeout(1000);
+
+    // Get the service worker
+    const serviceWorker = page.context().serviceWorkers()[0];
+    if (!serviceWorker) {
+      throw new Error('Service worker not found');
+    }
 
     // Navigate to the iframe tester
-    await page.goto(expectedUrl);
+    await page.goto(url);
 
     // Find text and select it
-    await page.getByText(expectedText, { exact: false }).first().selectText();
+    await page.getByText(text, { exact: false }).first().selectText();
 
     // Copy the selected text by invoking the command implementation
-    await page.context().serviceWorkers()[0].evaluate(() => {
+    await serviceWorker.evaluate(() => {
         // @ts-ignore
         chrome.tabs.query({ active: true }, (tabs) => {
             // @ts-ignore
@@ -40,10 +45,16 @@ TEST_DATA.forEach(({ id, url, text, expectedText, expectedUrl }) => {
         });
     });
 
+    // Wait for clipboard write to complete
+    await page.waitForTimeout(1000);
+
     // Navigate to a rich-text editor to verify pasting
     await page.goto('https://trix-editor.org/');
     await page.getByRole('textbox').clear();
     await page.keyboard.press('Control+v');
+
+    // Wait for paste to complete
+    await page.waitForTimeout(500);
 
     // find the pasted link
     const pastedLink = page.getByRole('link', { name: expectedText }).first();
