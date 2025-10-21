@@ -21,17 +21,23 @@ TEST_DATA.forEach(({ id, url, text, expectedText, expectedUrl }) => {
 
     test(`copy text as page link from an iframe in Markdown format (${id}/${TEST_DATA.length})`, async ({ page }) => {
 
+        // Wait for service worker to be available
+        await page.waitForTimeout(1000);
+
+        // Get the service worker
+        const serviceWorker = page.context().serviceWorkers()[0];
+        if (!serviceWorker) {
+          throw new Error('Service worker not found');
+        }
+
         // Set the preferred format to markdown in chrome storage
-        await page.context().serviceWorkers()[0].evaluate(() => {
+        await serviceWorker.evaluate(() => {
             // @ts-ignore
             chrome.storage.sync.set({ preferred_format: 'markdown' });
         });
 
-        let value =await page.context().serviceWorkers()[0].evaluate(() => {
-            // @ts-ignore
-            return chrome.storage.sync.get({ preferred_format: 'markdown' });
-        });
-        console.debug('Preferred format set to:', value);
+        // Wait for storage to be set (increased timeout for reliability)
+        await page.waitForTimeout(1000);
 
         // Navigate to the iframe tester and open the target URL in an iframe
         await page.goto('https://www.iframe-tester.com/');
@@ -54,7 +60,7 @@ TEST_DATA.forEach(({ id, url, text, expectedText, expectedUrl }) => {
         await page.waitForTimeout(100);
 
         // Copy the selected text by invoking the command implementation
-        await page.context().serviceWorkers()[0].evaluate(() => {
+        await serviceWorker.evaluate(() => {
             // @ts-ignore
             chrome.tabs.query({ active: true }, (tabs) => {
                 // @ts-ignore
@@ -63,12 +69,15 @@ TEST_DATA.forEach(({ id, url, text, expectedText, expectedUrl }) => {
         });
 
         // Wait for clipboard write to complete
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(1000);
 
         // Navigate to a rich-text editor to verify pasting
         await page.goto('https://trix-editor.org/');
         await page.getByRole('textbox').clear();
         await page.keyboard.press('Control+v');
+
+        // Wait for paste to complete
+        await page.waitForTimeout(500);
 
         // Verify the markdown format: [text](url)
         const expectedMarkdown = `[${expectedText}](${expectedUrl})`;

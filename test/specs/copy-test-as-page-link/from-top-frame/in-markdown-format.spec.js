@@ -1,13 +1,13 @@
 import { expect, test } from '../../../fixtures/context';
 
 const TEST_DATA = [
-    {
-      id: 2,
-      text: 'Chrome extensions',
-      url: 'https://playwright.dev/docs/chrome-extensions',
-      expectedText: 'Chrome extensions',
-      expectedUrl: 'https://playwright.dev/docs/chrome-extensions',
-    },
+  {
+    id: 2,
+    text: 'Chrome extensions',
+    url: 'https://playwright.dev/docs/chrome-extensions',
+    expectedText: 'Chrome extensions',
+    expectedUrl: 'https://playwright.dev/docs/chrome-extensions',
+  },
   {
     id: 1,
     text: 'The Free Encyclopedia',
@@ -21,11 +21,22 @@ TEST_DATA.forEach(({ id, url, text, expectedText, expectedUrl }) => {
 
   test(`copy text as page link from top frame in Markdown format (${id}/${TEST_DATA.length})`, async ({ page }) => {
 
-    // Set the preferred format to markdown in chrome storage
-    await page.context().serviceWorkers()[0].evaluate(() => {
+    // Wait for service worker to be available
+    await page.waitForTimeout(1000);
+
+    // Get the service worker and set the preferred format to markdown
+    const serviceWorker = page.context().serviceWorkers()[0];
+    if (!serviceWorker) {
+      throw new Error('Service worker not found');
+    }
+
+    await serviceWorker.evaluate(() => {
       // @ts-ignore
       chrome.storage.sync.set({ preferred_format: 'markdown' });
     });
+
+    // Wait for storage to be set (increased timeout for reliability)
+    await page.waitForTimeout(1000);
 
     // Navigate to the test page
     await page.goto(url);
@@ -34,12 +45,12 @@ TEST_DATA.forEach(({ id, url, text, expectedText, expectedUrl }) => {
     await page.getByText(text, { exact: false }).first().selectText();
 
     // Copy the selected text by invoking the command implementation
-    await page.context().serviceWorkers()[0].evaluate(() => {
+    await serviceWorker.evaluate(() => {
+      // @ts-ignore
+      chrome.tabs.query({ active: true }, (tabs) => {
         // @ts-ignore
-        chrome.tabs.query({ active: true }, (tabs) => {
-            // @ts-ignore
-            chrome.commands.onCommand.dispatch('copy_text_as_page_link', tabs[0]);
-        });
+        chrome.commands.onCommand.dispatch('copy_text_as_page_link', tabs[0]);
+      });
     });
 
     // Navigate to a rich-text editor to verify pasting
@@ -49,6 +60,8 @@ TEST_DATA.forEach(({ id, url, text, expectedText, expectedUrl }) => {
 
     // Verify the markdown format: [text](url)
     const expectedMarkdown = `[${expectedText}](${expectedUrl})`;
+
+    await page.waitForTimeout(500);
 
     // Get the pasted text content from the editor
     const pastedText = await page.getByRole('textbox').textContent();
