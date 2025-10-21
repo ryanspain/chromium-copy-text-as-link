@@ -125,7 +125,7 @@
         "--new-window",
 
         // Opens Chromium with the specified URL on launch.
-        "https://www.ryanspain.net/posts/automated-model-driven-power-app-tests-using-playwright"
+        "https://www.wikipedia.org/"
       ],
       "problemMatcher": []
     }
