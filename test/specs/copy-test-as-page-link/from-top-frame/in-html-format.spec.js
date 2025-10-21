@@ -1,4 +1,4 @@
-import { expect, test } from '../fixtures/context';
+import { expect, test } from '../../../fixtures/context';
 
 const TEST_DATA = [
   {
@@ -19,17 +19,13 @@ const TEST_DATA = [
 
 TEST_DATA.forEach(({ id, url, text, expectedText, expectedUrl }) => {
 
-  test(`test ${id}/${TEST_DATA.length} copy text as page link`, async ({ page }) => {
-
-    // Test data
-    let expectedText = "The Free Encyclopedia";
-    let expectedUrl = "https://www.wikipedia.org/";
+  test(`copy text as page link from top frame in HTML format (${id}/${TEST_DATA.length})`, async ({ page }) => {
 
     // Navigate to the iframe tester
-    await page.goto(expectedUrl);
+    await page.goto(url);
 
     // Find text and select it
-    await page.getByText(expectedText, { exact: false }).first().selectText();
+    await page.getByText(text, { exact: false }).first().selectText();
 
     // Copy the selected text by invoking the command implementation
     await page.context().serviceWorkers()[0].evaluate(() => {
