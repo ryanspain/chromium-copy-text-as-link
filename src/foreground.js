@@ -5,10 +5,18 @@ chrome.runtime.onMessage.addListener((message) => {
 
     switch (message.command) {
         case 'copy_text_as_page_link':
-            preparePageLinkData(message.format);
+            let pageLinkData = preparePageLinkData(message.format);
+
+            // TODO: Bypass sending message if frame is top-level
+            // Send data to background script, which will forward to top-level frame
+            chrome.runtime.sendMessage({ command: 'request_clipboard_write', data: pageLinkData });
             break;
         case 'copy_text_as_fragment_link':
-            prepareFragmentLinkData(message.format);
+            let fragmentLinkData = prepareFragmentLinkData(message.format);
+
+            // TODO: Bypass sending message if frame is top-level
+            // Send data to background script, which will forward to top-level frame
+            chrome.runtime.sendMessage({ command: 'request_clipboard_write', data: fragmentLinkData });
             break;
         case 'write_to_clipboard':
             // Only top-level frames should handle clipboard writes
@@ -44,8 +52,84 @@ function preparePageLinkData(format) {
         format: format
     };
 
-    // Send data to background script, which will forward to top-level frame
-    chrome.runtime.sendMessage({ command: 'request_clipboard_write', data: linkData });
+    return linkData;
+}
+
+/**
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+function prepareFragmentLinkData(format) {
+
+    var selection = window.getSelection();
+    var text = selection.toString().trim();
+
+    // Only proceed if we actually have selected text
+    if (!text) {
+        console.debug(`No text selected in frame (${window.location.host}), ignoring command`);
+        return;
+    }
+
+    var url = window.location.href;
+
+    console.debug(`Preparing fragment link data (${window.location.host})`, { text, url, format });
+
+    const result = exports.generateFragment(selection);
+
+    if (result.status === 0) {
+        const fragment = result.fragment;
+        const prefix = fragment.prefix
+            ? `${encodeURIComponent(fragment.prefix)}-,`
+            : '';
+        const suffix = fragment.suffix
+            ? `,-${encodeURIComponent(fragment.suffix)}`
+            : '';
+        const textStart = encodeURIComponent(fragment.textStart);
+        const textEnd = fragment.textEnd
+            ? `,${encodeURIComponent(fragment.textEnd)}`
+            : '';
+        url = `${url}#:~:text=${prefix}${textStart}${textEnd}${suffix}`;
+    }
+    else {
+        console.error(`Unable to generate fragment link. ${result.status}`);
+
+        const statusCodeMessages = {
+            1: 'The selected text is too short or does not contain enough valid words. Please choose a longer or more specific phrase.',
+            2: 'The selected text appears multiple times on this page and no unique link could be created. Try selecting a different text segment.',
+            3: 'The process took too long. This may be due to a large page size or slow browser performance. Try selecting a different text segment.',
+            4: 'An unexpected error occurred while generating the link.',
+        };
+
+        window.queueMicrotask(() => {
+            alert(
+                `Failed to copy the selected text as a unique link.
+                \n\n
+                (${statusCodeMessages[result.status]})`
+            );
+        });
+
+        return; // Don't send message if fragment generation failed
+    }
+
+    const linkData = {
+        type: 'fragment_link',
+        text: text,
+        url: url,
+        format: format
+    };
+
+    return linkData;
 }
 
 // Write prepared link data to clipboard (only called in top-level frame)
@@ -104,86 +188,3 @@ function copyMarkdownLinkToClipboard(text, url) {
     navigator.clipboard.write(data);
     console.debug(`Markdown link copied to clipboard (${window.location.host})`, { text, url });
 }
-
-/**
- * Copyright 2020 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-function prepareFragmentLinkData(format) {
-
-    var selection = window.getSelection();
-    var text = selection.toString().trim();
-
-    // Only proceed if we actually have selected text
-    if (!text) {
-        console.debug(`No text selected in frame (${window.location.host}), ignoring command`);
-        return;
-    }
-
-    var url = window.location.href;
-
-    console.debug(`Preparing fragment link data (${window.location.host})`, { text, url, format });
-
-    const result = exports.generateFragment(selection);
-
-    if (result.status === 0) {
-        const fragment = result.fragment;
-        const prefix = fragment.prefix
-            ? `${encodeURIComponent(fragment.prefix)}-,`
-            : '';
-        const suffix = fragment.suffix
-            ? `,-${encodeURIComponent(fragment.suffix)}`
-            : '';
-        const textStart = encodeURIComponent(fragment.textStart);
-        const textEnd = fragment.textEnd
-            ? `,${encodeURIComponent(fragment.textEnd)}`
-            : '';
-        url = `${url}#:~:text=${prefix}${textStart}${textEnd}${suffix}`;
-    }
-    else {
-        console.error(`Unable to generate fragment link. ${result.status}`);
-        reportFailure(result.status);
-        return; // Don't send message if fragment generation failed
-    }
-
-    const linkData = {
-        type: 'fragment_link',
-        text: text,
-        url: url,
-        format: format
-    };
-
-    // Send data to background script, which will forward to top-level frame
-    chrome.runtime.sendMessage({ command: 'request_clipboard_write', data: linkData });
-}
-
-function reportFailure(status) {
-
-    const statusCodeMessages = {
-        1: 'The selected text is too short or does not contain enough valid words. Please choose a longer or more specific phrase.',
-        2: 'The selected text appears multiple times on this page and no unique link could be created. Try selecting a different text segment.',
-        3: 'The process took too long. This may be due to a large page size or slow browser performance. Try selecting a different text segment.',
-        4: 'An unexpected error occurred while generating the link.',
-    };
-
-    window.queueMicrotask(() => {
-        alert(
-            `Failed to copy the selected text as a unique link.
-            \n\n
-            (${statusCodeMessages[status]})`
-        );
-    });
-
-    return true;
-};
