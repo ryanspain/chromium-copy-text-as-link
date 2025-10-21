@@ -7,16 +7,24 @@ chrome.runtime.onMessage.addListener((message) => {
         case 'copy_text_as_page_link':
             let pageLinkData = preparePageLinkData(message.format);
 
-            // TODO: Bypass sending message if frame is top-level
-            // Send data to background script, which will forward to top-level frame
-            chrome.runtime.sendMessage({ command: 'request_clipboard_write', data: pageLinkData });
+            if (window === window.top) {
+                // Top-level frame: write directly to clipboard
+                writeToClipboard(pageLinkData);
+            } else {
+                // Nested frame: send to background script to forward to top-level frame
+                chrome.runtime.sendMessage({ command: 'request_clipboard_write', data: pageLinkData });
+            }
             break;
         case 'copy_text_as_fragment_link':
             let fragmentLinkData = prepareFragmentLinkData(message.format);
 
-            // TODO: Bypass sending message if frame is top-level
-            // Send data to background script, which will forward to top-level frame
-            chrome.runtime.sendMessage({ command: 'request_clipboard_write', data: fragmentLinkData });
+            if (window === window.top) {
+                // Top-level frame: write directly to clipboard
+                writeToClipboard(fragmentLinkData);
+            } else {
+                // Nested frame: send to background script to forward to top-level frame
+                chrome.runtime.sendMessage({ command: 'request_clipboard_write', data: fragmentLinkData });
+            }
             break;
         case 'write_to_clipboard':
             // Only top-level frames should handle clipboard writes
