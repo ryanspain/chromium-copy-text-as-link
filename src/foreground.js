@@ -8,9 +8,11 @@ chrome.runtime.onMessage.addListener((message) => {
             let pageLinkData = preparePageLinkData(message.format);
 
             if (window === window.top) {
+                console.debug(`Copy command in top-level frame (${window.location.host}), copying...`);
                 // Top-level frame: write directly to clipboard
                 writeToClipboard(pageLinkData);
             } else {
+                console.debug(`Copy command in nested frame (${window.location.host}), forwarding...`);
                 // Nested frame: send to background script to forward to top-level frame
                 chrome.runtime.sendMessage({ command: 'request_clipboard_write', data: pageLinkData });
             }
@@ -19,9 +21,11 @@ chrome.runtime.onMessage.addListener((message) => {
             let fragmentLinkData = prepareFragmentLinkData(message.format);
 
             if (window === window.top) {
+                console.debug(`Copy command in top-level frame (${window.location.host}), copying...`);
                 // Top-level frame: write directly to clipboard
                 writeToClipboard(fragmentLinkData);
             } else {
+                console.debug(`Copy command in nested frame (${window.location.host}), forwarding...`);
                 // Nested frame: send to background script to forward to top-level frame
                 chrome.runtime.sendMessage({ command: 'request_clipboard_write', data: fragmentLinkData });
             }
