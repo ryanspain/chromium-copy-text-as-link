@@ -6,5 +6,5 @@ test/results/
 test/report/
 playwright/.cache/
 
-# Google Chrome
-.chrome-profile/
+# Chromium user data
+.chromium-profile/
