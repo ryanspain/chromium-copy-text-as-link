@@ -41,7 +41,7 @@ chrome.contextMenus.removeAll(function () {
 
 // scenario 1: the user uses the context menu
 // register an on click command for the context menu options
-chrome.contextMenus.onClicked.addListener(function (_, tab) {
+chrome.contextMenus.onClicked.addListener(function (clickData, tab) {
 
     console.debug('Context menu item clicked');
 
@@ -55,7 +55,7 @@ chrome.contextMenus.onClicked.addListener(function (_, tab) {
         console.debug(`Sending message to tab with ID: ${tab.id}`, message);
 
         // tell the active tab to execute the command
-        chrome.tabs.sendMessage(tab.id, message);
+        chrome.tabs.sendMessage(tab.id, message, { frameId: clickData.frameId });
     });
 });
 
