@@ -29,105 +29,69 @@
       "problemMatcher": []
     },
     {
-      "label": "Delete Chrome Profile",
-      "type": "shell",
-      "command": "cmd",
-      "args": [
-        "/c",
-        "if exist \"${workspaceFolder}\\.chrome-profile\" rmdir /s /q \"${workspaceFolder}\\.chrome-profile\""
-      ],
-      "problemMatcher": []
-    },
-    {
-      "label": "Add Development Bookmarks to Chrome Profile",
-      "type": "shell",
-      "command": "cmd",
-      "args": [
-        "/c",
-        "mkdir \"${workspaceFolder}\\.chrome-profile\\Default\" 2>nul && copy /Y \"${workspaceFolder}\\.vscode\\bookmarks-template.json\" \"${workspaceFolder}\\.chrome-profile\\Default\\Bookmarks\""
-      ],
-      "problemMatcher": []
-    },
-    {
-      "label": "Launch in Google Chrome",
-      "type": "shell",
-      "command": "chrome", // This assume Google Chrome is in your system path
-      "args": [
-        // See Chrome launch flags documentation at https://github.com/GoogleChrome/chrome-launcher/blob/main/docs/chrome-flags-for-tools.md
-        // Ensures a clean, isolated user profile, preventing interference from existing Chrome settings.
-        "--user-data-dir=${workspaceFolder}/.chrome-profile",
-
-        // Prevents Chrome from prompting to set itself as the default browser.
-        "--no-default-browser-check",
-
-        // Disables prompt to sign in to Chrome.
-        "--disable-sync",
-
-        // Disables the first-run setup screen that appears when Chrome is launched with a new profile.
-        "--disable-first-run-ui",
-
-        // Prevents Chrome from asking the user to select a default search engine.
-        "--disable-search-engine-choice-screen",
-
-        // Disables "Enhanced ad privacy in Chrome" dialog (if it wasn't disabled through other means).
-        "--disable-features=PrivacySandboxSettings4",
-
-        // Disables all installed extensions except those explicitly loaded via --load-extension.
-        "--disable-extensions-except=${workspaceFolder}/src",
-
-        // Loads the specified extension when Chrome is launched.
-        "--load-extension=${workspaceFolder}/src",
-
-        // Forces Chrome to open in a new window rather than a new tab in an existing instance.
-        "--new-window",
-
-        // Opens Chrome with the specified URL on launch.
-        "https://www.ryanspain.net/posts/automated-model-driven-power-app-tests-using-playwright"
-      ],
-      "dependsOn": [
-        "Delete Chrome Profile",
-        "Add Development Bookmarks to Chrome Profile"
-      ],
-      "problemMatcher": []
-    },
-    {
       "label": "Launch in Chromium",
       "type": "shell",
-      "command": "chromium", // This assumes Chromium is in your system path
+      "command": "C:\\Users\\rspai\\scoop\\apps\\chromium\\current\\chrome.exe",
       "args": [
         // See Chrome launch flags documentation at https://github.com/GoogleChrome/chrome-launcher/blob/main/docs/chrome-flags-for-tools.md
-        // Ensures a clean, isolated user profile, preventing interference from existing Chrome settings.
-        // TODO: This does not seem to work with Chromium - need to investigate further.
+        // Set a user data directory to ensure a clean, isolated profile, preventing interference from existing Chromium settings.
         "--user-data-dir=${workspaceFolder}/.chromium-profile",
-
         // Prevents Chromium from prompting to set itself as the default browser.
         "--no-default-browser-check",
-
         // Disables prompt to sign in to Chromium.
         "--disable-sync",
-
         // Disables the first-run setup screen that appears when Chromium is launched with a new profile.
         "--disable-first-run-ui",
-
         // Prevents Chromium from asking the user to select a default search engine.
         "--disable-search-engine-choice-screen",
-
         // Disables "Enhanced ad privacy in Chromium" dialog (if it wasn't disabled through other means).
         "--disable-features=PrivacySandboxSettings4",
-
         // Disables all installed extensions except those explicitly loaded via --load-extension.
         "--disable-extensions-except=${workspaceFolder}/src",
-
         // Loads the specified extension when Chromium is launched.
         "--load-extension=${workspaceFolder}/src",
-
         // Forces Chromium to open in a new window rather than a new tab in an existing instance.
         "--new-window",
-
+        // Set window size for better visibility during development.
+        "--window-size=1440,1200",
+        // Set window position to avoid overlap with other windows.
+        "--window-position=50,50",
         // Opens Chromium with the specified URL on launch.
-        "https://www.ryanspain.net/posts/automated-model-driven-power-app-tests-using-playwright"
+        "https://www.iframe-tester.com/"
+      ],
+      "dependsOn": [
+        "Delete Chromium Profile",
+        "Add Development Bookmarks to Chromium Profile"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Delete Chromium Profile",
+      "type": "shell",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "if exist \"${workspaceFolder}\\.chromium-profile\" rmdir /s /q \"${workspaceFolder}\\.chromium-profile\""
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Add Development Bookmarks to Chromium Profile",
+      "type": "shell",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "mkdir \"${workspaceFolder}\\.chromium-profile\\Default\" 2>nul && copy /Y \"${workspaceFolder}\\.vscode\\bookmarks-template.json\" \"${workspaceFolder}\\.chromium-profile\\Default\\Bookmarks\""
       ],
       "problemMatcher": []
     }
-  ]
+  ],
+  // "inputs": [
+  //   {
+  //     "id": "chromiumPath",
+  //     "type": "promptString",
+  //     "description": "Enter the path to the Chromium executable",
+  //     "default": "C:\\Program Files\\Chromium\\chrome.exe"
+  //   }
+  // ]
 }

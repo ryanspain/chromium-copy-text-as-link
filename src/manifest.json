@@ -1,7 +1,7 @@
 {
     "name": "Copy Text as Link",
     "description": "Copy the selected text as a HTML link to the clipboard that can be pasted in in supported editors with the hyperlink intact.",
-    "version": "2.0",
+    "version": "2.2",
     "manifest_version": 3,
     "options_page": "options.html",
     "icons": {
@@ -32,7 +32,8 @@
             "matches": [
                 "https://*/*",
                 "http://*/*"
-            ]
+            ],
+            "all_frames": true
         }
     ],
     "permissions": [

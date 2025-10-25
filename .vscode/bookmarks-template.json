@@ -17,6 +17,16 @@
                "type": "url",
                "name": "Service workers",
                "url": "chrome://serviceworker-internals/"
+            },
+            {
+               "type": "url",
+               "name": "Rich-text editor",
+               "url": "https://trix-editor.org/"
+            },
+            {
+               "type": "url",
+               "name": "Iframe tester",
+               "url": "https://www.iframe-tester.com/"
             }
          ]
       },

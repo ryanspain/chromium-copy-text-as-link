@@ -1,71 +1,55 @@
-// handle message requests (from keyboard shortcuts or context menu)
+// Message handler - receives commands from background script
 chrome.runtime.onMessage.addListener((message) => {
-
     console.debug(`Command received (${window.location.host})`, message);
 
-    switch (message.command) {
-        case 'copy_text_as_page_link':
-            copySelectedTextAsPageLink(message.format)
-            break;
-        case 'copy_text_as_fragment_link':
-            copySelectedTextAsFragmentLink(message.format);
-            break;
-        default:
-            throw new Error(`Unsupported command: ${message.command}`);
+    try {
+        switch (message.command) {
+            case 'copy_text_as_page_link':
+                handleCopyCommand(() => preparePageLinkData(message.format));
+                break;
+            case 'copy_text_as_fragment_link':
+                handleCopyCommand(() => prepareFragmentLinkData(message.format));
+                break;
+            case 'write_to_clipboard':
+                if (window === window.top) {
+                    writeToClipboard(message.data);
+                }
+                break;
+            default:
+                throw new Error(`Unsupported command: ${message.command}`);
+        }
+    } catch (error) {
+        console.debug(`Error processing command: ${message.command} on frame ${window.location.host}`, error);
     }
 });
 
-function copyHtmlLinkToClipboard(text, url) {
-    var link = `<a href="${url}" target="_blank">${text}</a>`;
+// Helper: Handle copy commands with frame-aware routing
+function handleCopyCommand(prepareLinkData) {
+    const linkData = prepareLinkData();
 
-    // Create both HTML and plain text versions for better clipboard preview support
-    var htmlBlob = new Blob([link], { type: "text/html" });
-    var plainText = `${text} (${url})`;
-    var textBlob = new Blob([plainText], { type: "text/plain" });
-    
-    var data = [new ClipboardItem({ 
-        "text/html": htmlBlob,
-        "text/plain": textBlob
-    })];
-
-    console.debug(`Copying HTML link to clipboard (${window.location.host})`, { text, url });
-
-    navigator.clipboard.write(data);
-}
-
-function copyMarkdownLinkToClipboard(text, url) {
-
-    // Normalize the text to remove newline breaks and excessive whitespace
-    text = text.replace(/\s+/g, ' ').replace(/\n/g, ' ').trim();
-
-    var link = `[${text}](${url})`;
-
-    var type = "text/plain";
-    var blob = new Blob([link], { type });
-    var data = [new ClipboardItem({ [type]: blob })];
-
-    console.debug(`Copying Markdown link to clipboard (${window.location.host})`, { text, url });
-
-    navigator.clipboard.write(data);
-}
-
-function copySelectedTextAsPageLink(format) {
-
-    var text = window.getSelection().toString().trim();
-    var url = window.location.href;
-
-    console.debug(`Copying selected text as page link (${window.location.host})`, { text: text, url: url });
-
-    switch (format) {
-        case 'html':
-            copyHtmlLinkToClipboard(text, url);
-            return;
-        case 'markdown':
-            copyMarkdownLinkToClipboard(text, url);
-            return;
-        default:
-            throw new Error(`Unsupported format: ${format}`);
+    if (window === window.top) {
+        console.debug(`Copy command in top-level frame (${window.location.host}), writing to clipboard...`);
+        writeToClipboard(linkData);
+    } else {
+        console.debug(`Copy command in nested frame (${window.location.host}), forwarding to background...`);
+        chrome.runtime.sendMessage({ command: 'request_clipboard_write', data: linkData });
     }
+}
+
+// Prepare page link data
+function preparePageLinkData(format) {
+
+    const text = window.getSelection().toString().trim();
+
+    if (!text) {
+        throw new Error(`No text selected in frame ${window.location.host}`);
+    }
+
+    const url = window.location.href;
+
+    console.debug(`Preparing page link data (${window.location.host})`, { text, url, format });
+
+    return { text, url, format };
 }
 
 /**
@@ -83,64 +67,91 @@ function copySelectedTextAsPageLink(format) {
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-function copySelectedTextAsFragmentLink(format) {
+function prepareFragmentLinkData(format) {
+    const selection = window.getSelection();
+    const text = selection.toString().trim();
 
-    var selection = window.getSelection();
-    var url = window.location.href;
+    if (!text) {
+        throw new Error(`No text selected in frame (${window.location.host}), ignoring command`);
+    }
 
-    console.debug(`Copying selected text as fragment link (${window.location.host})`, { text: selection.toString(), url: url });
+    let url = window.location.href;
+    console.debug(`Preparing fragment link data (${window.location.host})`, { text, url, format });
 
     const result = exports.generateFragment(selection);
 
     if (result.status === 0) {
-        const fragment = result.fragment;
-        const prefix = fragment.prefix
-            ? `${encodeURIComponent(fragment.prefix)}-,`
-            : '';
-        const suffix = fragment.suffix
-            ? `,-${encodeURIComponent(fragment.suffix)}`
-            : '';
-        const textStart = encodeURIComponent(fragment.textStart);
-        const textEnd = fragment.textEnd
-            ? `,${encodeURIComponent(fragment.textEnd)}`
-            : '';
+        const prefix = result.fragment.prefix ? `${encodeURIComponent(result.fragment.prefix)}-,` : '';
+        const suffix = result.fragment.suffix ? `,-${encodeURIComponent(result.fragment.suffix)}` : '';
+        const textStart = encodeURIComponent(result.fragment.textStart);
+        const textEnd = result.fragment.textEnd ? `,${encodeURIComponent(result.fragment.textEnd)}` : '';
+
         url = `${url}#:~:text=${prefix}${textStart}${textEnd}${suffix}`;
-    }
-    else {
-        console.error(`Unable to generate fragment link. ${result.status}`);
-        reportFailure(result.status);
+    } else {
+        handleFragmentGenerationError(result.status);
+        return; // Don't send message if fragment generation failed
     }
 
-    var text = selection.toString().trim();
+    return { text, url, format };
 
-    switch (format) {
-        case 'html':
-            copyHtmlLinkToClipboard(text, url);
-            return;
-        case 'markdown':
-            copyMarkdownLinkToClipboard(text, url);
-            return;
-        default:
-            throw new Error(`Unsupported format: ${format}`);
+    // Handle fragment generation errors with user-friendly messages
+    function handleFragmentGenerationError(statusCode) {
+        console.error(`Unable to generate fragment link. Status: ${statusCode}`);
+
+        const statusCodeMessages = {
+            1: 'The selected text is too short or does not contain enough valid words. Please choose a longer or more specific phrase.',
+            2: 'The selected text appears multiple times on this page and no unique link could be created. Try selecting a different text segment.',
+            3: 'The process took too long. This may be due to a large page size or slow browser performance. Try selecting a different text segment.',
+            4: 'An unexpected error occurred while generating the link.',
+        };
+
+        window.queueMicrotask(() => {
+            alert(`Failed to copy the selected text as a unique link.\n\n(${statusCodeMessages[statusCode]})`);
+        });
     }
 }
 
-function reportFailure(status) {
+// Write prepared link data to clipboard (only called in top-level frame)
+function writeToClipboard(linkData) {
+    console.debug(`Writing to clipboard (${window.location.host})`, linkData);
 
-    const statusCodeMessages = {
-        1: 'The selected text is too short or does not contain enough valid words. Please choose a longer or more specific phrase.',
-        2: 'The selected text appears multiple times on this page and no unique link could be created. Try selecting a different text segment.',
-        3: 'The process took too long. This may be due to a large page size or slow browser performance. Try selecting a different text segment.',
-        4: 'An unexpected error occurred while generating the link.',
+    const formatHandlers = {
+        'html': copyHtmlLinkToClipboard,
+        'markdown': copyMarkdownLinkToClipboard
     };
 
-    window.queueMicrotask(() => {
-        alert(
-            `Failed to copy the selected text as a unique link.
-            \n\n
-            (${statusCodeMessages[status]})`
-        );
-    });
+    const handler = formatHandlers[linkData.format];
+    if (!handler) {
+        throw new Error(`Unsupported format: ${linkData.format}`);
+    }
 
-    return true;
-};
+    handler(linkData.text, linkData.url);
+}
+
+function copyHtmlLinkToClipboard(text, url) {
+    const link = `<a href="${url}" target="_blank">${text}</a>`;
+    const plainText = `${text} (${url})`;
+
+    const data = [new ClipboardItem({
+        "text/html": new Blob([link], { type: "text/html" }),
+        "text/plain": new Blob([plainText], { type: "text/plain" })
+    })];
+
+    console.debug(`Copying HTML link to clipboard (${window.location.host})`, { text, url });
+    navigator.clipboard.write(data);
+    console.debug(`HTML link copied to clipboard (${window.location.host})`, { text, url });
+}
+
+function copyMarkdownLinkToClipboard(text, url) {
+    // Normalize the text to remove newline breaks and excessive whitespace
+    const normalizedText = text.replace(/\s+/g, ' ').replace(/\n/g, ' ').trim();
+    const link = `[${normalizedText}](${url})`;
+
+    const data = [new ClipboardItem({
+        "text/plain": new Blob([link], { type: "text/plain" })
+    })];
+
+    console.debug(`Copying Markdown link to clipboard (${window.location.host})`, { text, url });
+    navigator.clipboard.write(data);
+    console.debug(`Markdown link copied to clipboard (${window.location.host})`, { text, url });
+}

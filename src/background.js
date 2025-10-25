@@ -41,7 +41,7 @@ chrome.contextMenus.removeAll(function () {
 
 // scenario 1: the user uses the context menu
 // register an on click command for the context menu options
-chrome.contextMenus.onClicked.addListener(function (_, tab) {
+chrome.contextMenus.onClicked.addListener(function (clickData, tab) {
 
     console.debug('Context menu item clicked');
 
@@ -55,7 +55,7 @@ chrome.contextMenus.onClicked.addListener(function (_, tab) {
         console.debug(`Sending message to tab with ID: ${tab.id}`, message);
 
         // tell the active tab to execute the command
-        chrome.tabs.sendMessage(tab.id, message);
+        chrome.tabs.sendMessage(tab.id, message, { frameId: clickData.frameId });
     });
 });
 
@@ -76,4 +76,25 @@ chrome.commands.onCommand.addListener(function (command, tab) {
         // tell the active tab to execute the command
         chrome.tabs.sendMessage(tab.id, message);
     });
+});
+
+// scenario 3: foreground script requests clipboard write
+// receive link data from any frame and forward to top-level frame only
+chrome.runtime.onMessage.addListener((message, sender) => {
+
+    if (message.command === 'request_clipboard_write') {
+        console.debug('Received clipboard write request from tab', sender.tab.id, message.data);
+
+        // Forward the data to the top-level frame only (frameId: 0)
+        chrome.tabs.sendMessage(
+            sender.tab.id,
+            {
+                command: 'write_to_clipboard',
+                data: message.data
+            },
+            {
+                frameId: 0  // Send only to top-level frame that has clipboard access
+            }
+        );
+    }
 });
