@@ -57,7 +57,7 @@
         // Set window position to avoid overlap with other windows.
         "--window-position=50,50",
         // Opens Chromium with the specified URL on launch.
-        "https://www.wikipedia.org/"
+        "https://www.iframe-tester.com/"
       ],
       "dependsOn": [
         "Delete Chromium Profile",
