@@ -3,42 +3,46 @@ chrome.runtime.onMessage.addListener((message) => {
 
     console.debug(`Command received (${window.location.host})`, message);
 
-    switch (message.command) {
-        case 'copy_text_as_page_link':
-            let pageLinkData = preparePageLinkData(message.format);
+    try {
+        switch (message.command) {
+            case 'copy_text_as_page_link':
+                let pageLinkData = preparePageLinkData(message.format);
 
-            if (window === window.top) {
-                console.debug(`Copy command in top-level frame (${window.location.host}), copying...`);
-                // Top-level frame: write directly to clipboard
-                writeToClipboard(pageLinkData);
-            } else {
-                console.debug(`Copy command in nested frame (${window.location.host}), forwarding...`);
-                // Nested frame: send to background script to forward to top-level frame
-                chrome.runtime.sendMessage({ command: 'request_clipboard_write', data: pageLinkData });
-            }
-            break;
-        case 'copy_text_as_fragment_link':
-            let fragmentLinkData = prepareFragmentLinkData(message.format);
+                if (window === window.top) {
+                    console.debug(`Copy command in top-level frame (${window.location.host}), copying...`);
+                    // Top-level frame: write directly to clipboard
+                    writeToClipboard(pageLinkData);
+                } else {
+                    console.debug(`Copy command in nested frame (${window.location.host}), forwarding...`);
+                    // Nested frame: send to background script to forward to top-level frame
+                    chrome.runtime.sendMessage({ command: 'request_clipboard_write', data: pageLinkData });
+                }
+                break;
+            case 'copy_text_as_fragment_link':
+                let fragmentLinkData = prepareFragmentLinkData(message.format);
 
-            if (window === window.top) {
-                console.debug(`Copy command in top-level frame (${window.location.host}), copying...`);
-                // Top-level frame: write directly to clipboard
-                writeToClipboard(fragmentLinkData);
-            } else {
-                console.debug(`Copy command in nested frame (${window.location.host}), forwarding...`);
-                // Nested frame: send to background script to forward to top-level frame
-                chrome.runtime.sendMessage({ command: 'request_clipboard_write', data: fragmentLinkData });
-            }
-            break;
-        case 'write_to_clipboard':
-            // Only top-level frames should handle clipboard writes
-            if (window !== window.top)
-                return;
+                if (window === window.top) {
+                    console.debug(`Copy command in top-level frame (${window.location.host}), copying...`);
+                    // Top-level frame: write directly to clipboard
+                    writeToClipboard(fragmentLinkData);
+                } else {
+                    console.debug(`Copy command in nested frame (${window.location.host}), forwarding...`);
+                    // Nested frame: send to background script to forward to top-level frame
+                    chrome.runtime.sendMessage({ command: 'request_clipboard_write', data: fragmentLinkData });
+                }
+                break;
+            case 'write_to_clipboard':
+                // Only top-level frames should handle clipboard writes
+                if (window !== window.top)
+                    return;
 
-            writeToClipboard(message.data);
-            break;
-        default:
-            throw new Error(`Unsupported command: ${message.command}`);
+                writeToClipboard(message.data);
+                break;
+            default:
+                throw new Error(`Unsupported command: ${message.command}`);
+        }
+    } catch (error) {
+        console.debug(`Error processing command: ${message.command} on frame ${window.location.host}`, error);
     }
 });
 
@@ -49,8 +53,7 @@ function preparePageLinkData(format) {
 
     // Only proceed if we actually have selected text
     if (!text) {
-        console.debug(`No text selected in frame (${window.location.host}), ignoring command`);
-        return;
+        throw new Error(`No text selected in frame (${window.location.host}), ignoring command`);
     }
 
     var url = window.location.href;
@@ -89,8 +92,7 @@ function prepareFragmentLinkData(format) {
 
     // Only proceed if we actually have selected text
     if (!text) {
-        console.debug(`No text selected in frame (${window.location.host}), ignoring command`);
-        return;
+        throw new Error(`No text selected in frame (${window.location.host}), ignoring command`);
     }
 
     var url = window.location.href;
@@ -148,19 +150,15 @@ function prepareFragmentLinkData(format) {
 function writeToClipboard(linkData) {
     console.debug(`Writing to clipboard (${window.location.host})`, linkData);
 
-    try {
-        switch (linkData.format) {
-            case 'html':
-                copyHtmlLinkToClipboard(linkData.text, linkData.url);
-                break;
-            case 'markdown':
-                copyMarkdownLinkToClipboard(linkData.text, linkData.url);
-                break;
-            default:
-                throw new Error(`Unsupported format: ${linkData.format}`);
-        }
-    } catch (error) {
-        console.error(`Failed to write to clipboard (${window.location.host})`, error);
+    switch (linkData.format) {
+        case 'html':
+            copyHtmlLinkToClipboard(linkData.text, linkData.url);
+            break;
+        case 'markdown':
+            copyMarkdownLinkToClipboard(linkData.text, linkData.url);
+            break;
+        default:
+            throw new Error(`Unsupported format: ${linkData}`);
     }
 }
 
