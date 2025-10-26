@@ -19,7 +19,7 @@ const TEST_DATA = [
 
 TEST_DATA.forEach(({ id, url, text, expectedText, expectedUrl }) => {
 
-  test(`copy text as fragment link from top frame in HTML format (${id}/${TEST_DATA.length})`, async ({ page }) => {
+  test(`copy text as fragment link from an iframe in HTML format (${id}/${TEST_DATA.length})`, async ({ page }) => {
 
     // Wait for service worker to be available
     await page.waitForTimeout(1000);
@@ -30,11 +30,25 @@ TEST_DATA.forEach(({ id, url, text, expectedText, expectedUrl }) => {
       throw new Error('Service worker not found');
     }
 
-    // Navigate to the iframe tester
-    await page.goto(url);
+    // Navigate to the iframe tester and open the target URL in an iframe
+    await page.goto('https://www.iframe-tester.com/');
 
-    // Find text and select it
-    await page.getByText(text, { exact: false }).first().selectText();
+    // Fill in the URL and load it in the iframe
+    const urlInput = page.getByRole('textbox', { name: 'Enter Url to Test' });
+    await urlInput.fill(url);
+    await page.getByRole('button', { name: 'Check URL' }).click();
+
+    // Wait for the iframe to load
+    await page.waitForTimeout(1000);
+
+    // Get the iframe
+    const iframe = page.locator('iframe').contentFrame();
+
+    // Find text within the iframe and select it by triple-clicking
+    await iframe.getByText(text, { exact: false }).first().selectText();
+
+    // Wait a moment to ensure selection is established
+    await page.waitForTimeout(100);
 
     // Copy the selected text by invoking the command implementation
     await serviceWorker.evaluate(() => {

@@ -10,16 +10,16 @@ const TEST_DATA = [
   },
   {
     id: 2,
-    text: 'Extensions only work in Chromium when launched with a persistent context',
+    text: 'Extensions only work in Chromium when launched with a persistent context. Use custom browser args at your own risk, as some of them may break Playwright functionality.',
     url: 'https://playwright.dev/docs/chrome-extensions',
-    expectedText: 'Extensions only work in Chromium when launched with a persistent context',
+    expectedText: 'Extensions only work in Chromium when launched with a persistent context. Use custom browser args at your own risk, as some of them may break Playwright functionality.',
     expectedUrl: 'https://playwright.dev/docs/chrome-extensions#:~:text=extensions%20only%20work%20in%20chromium%20when%20launched%20with%20a%20persistent%20context.%20use%20custom%20browser%20args%20at%20your%20own%20risk%2C%20as%20some%20of%20them%20may%20break%20playwright%20functionality.',
   }
 ]
 
 TEST_DATA.forEach(({ id, url, text, expectedText, expectedUrl }) => {
 
-  test(`copy text as fragment link from top frame in HTML format (${id}/${TEST_DATA.length})`, async ({ page }) => {
+  test(`copy text as fragment link from top frame in Markdown format (${id}/${TEST_DATA.length})`, async ({ page }) => {
 
     // Wait for service worker to be available
     await page.waitForTimeout(1000);
@@ -30,7 +30,16 @@ TEST_DATA.forEach(({ id, url, text, expectedText, expectedUrl }) => {
       throw new Error('Service worker not found');
     }
 
-    // Navigate to the iframe tester
+    // Set the preferred format to markdown in chrome storage
+    await serviceWorker.evaluate(() => {
+        // @ts-ignore
+        chrome.storage.sync.set({ preferred_format: 'markdown' });
+    });
+
+    // Wait for storage to be set (increased timeout for reliability)
+    await page.waitForTimeout(1000);
+
+    // Navigate to the target page
     await page.goto(url);
 
     // Find text and select it
@@ -56,12 +65,13 @@ TEST_DATA.forEach(({ id, url, text, expectedText, expectedUrl }) => {
     // Wait for paste to complete
     await page.waitForTimeout(500);
 
-    // find the pasted link
-    const pastedLink = page.getByRole('link', { name: expectedText }).first();
+    // Verify the markdown format: [text](url)
+    const expectedMarkdown = `[${expectedText}](${expectedUrl})`;
 
-    // assert the pasted link is correct
-    await expect(pastedLink, 'Pasted link found in the content area').toBeVisible();
-    await expect(pastedLink, 'Pasted link has expected text').toContainText(expectedText);
-    await expect(pastedLink, 'Pasted link has expected URL').toHaveAttribute('href', expectedUrl);
+    // Get the pasted text content from the editor
+    const pastedText = await page.getByRole('textbox').textContent();
+
+    // Assert the pasted text matches the expected markdown format
+    expect(pastedText, 'Pasted text contains correct markdown link').toBe(expectedMarkdown);
   });
 });
