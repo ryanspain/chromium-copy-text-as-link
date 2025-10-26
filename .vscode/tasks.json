@@ -9,7 +9,7 @@
     },
     {
       "type": "shell",
-      "command": "npx playwright test",
+      "command": "npx playwright test test/specs --repeat-each=${input:repeatTestCount}",
       "label": "Run all tests",
       "problemMatcher": [],
       "group": {
@@ -86,12 +86,18 @@
       "problemMatcher": []
     }
   ],
-  // "inputs": [
-  //   {
-  //     "id": "chromiumPath",
-  //     "type": "promptString",
-  //     "description": "Enter the path to the Chromium executable",
-  //     "default": "C:\\Program Files\\Chromium\\chrome.exe"
-  //   }
-  // ]
+  "inputs": [
+    {
+      "id": "chromiumPath",
+      "type": "promptString",
+      "description": "Enter the path to the Chromium executable",
+      "default": "C:\\Program Files\\Chromium\\chrome.exe"
+    },
+    {
+      "id": "repeatTestCount",
+      "type": "promptString",
+      "description": "Enter the number of times to repeat the tests",
+      "default": "1"
+    }
+  ]
 }
