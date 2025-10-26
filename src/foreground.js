@@ -96,7 +96,6 @@ function prepareFragmentLinkData(format) {
 
     // Handle fragment generation errors with user-friendly messages
     function handleFragmentGenerationError(statusCode) {
-        console.error(`Unable to generate fragment link. Status: ${statusCode}`);
 
         const statusCodeMessages = {
             1: 'The selected text is too short or does not contain enough valid words. Please choose a longer or more specific phrase.',
@@ -104,6 +103,8 @@ function prepareFragmentLinkData(format) {
             3: 'The process took too long. This may be due to a large page size or slow browser performance. Try selecting a different text segment.',
             4: 'An unexpected error occurred while generating the link.',
         };
+
+        console.error(`Unable to generate fragment link. Status: ${statusCodeMessages[statusCode]}`);
 
         window.queueMicrotask(() => {
             alert(`Failed to copy the selected text as a unique link.\n\n(${statusCodeMessages[statusCode]})`);
